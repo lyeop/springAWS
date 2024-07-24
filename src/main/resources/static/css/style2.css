@@ -1,0 +1,128 @@
+body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+        }
+        .mgb-15 {
+            margin-bottom: 15px;
+        }
+        .mgt-30 {
+            margin-top: 20px;
+        }
+        .mgt-50 {
+            margin-top: 50px;
+        }
+        .repImgDiv {
+            margin-right: 15px;
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .repImg {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .wd50 {
+            width: 50%;
+            padding: 15px;
+        }
+        .badge {
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .h4 {
+            font-size: 1.5rem;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+        }
+        .input-group-prepend span {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .btn {
+            margin: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+        .btn-lg {
+            font-size: 1.25rem;
+            padding: 10px 20px;
+        }
+        .rounded-pill {
+            border-radius: 50px;
+        }
+        .display-5 {
+            font-size: 2rem;
+        }
+        .border-success-subtle {
+            border-color: #d4edda;
+        }
+        .lead {
+            font-size: 1.25rem;
+        }
+        .rounded {
+            border-radius: 15px;
+        }
+        .my-4 {
+            margin: 1rem 0;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-left {
+            text-align: left;
+        }
+        #myChart {
+            margin: 20px auto;
+            display: block;
+        }
+        #timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .item-name {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .item-detail {
+            font-size: 1.25rem;
+            color: #555;
+        }
+        .timer-section, .bid-section {
+            margin-top: 30x;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .timer-section p, .bid-section p {
+            margin-bottom: 10px;
+        }
+
+        .lead {
+                white-space: pre-wrap; /* 텍스트가 넘칠 경우 줄 바꿈 */
+                word-wrap: break-word; /* 단어가 길어질 때 자동으로 줄 바꿈 */
+            }

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title>1달러샵</title>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+        var IMP = window.IMP;
+        IMP.init("imp17068045");
+
+        function requestPay() {
+
+            var orderUid = '[[${requestDto.orderUid}]]';
+            var itemName = '[[${requestDto.itemNm}]]';
+            var paymentPrice = [[${requestDto.orderPrice}]];
+            var buyerName = '[[${requestDto.buyerName}]]';
+            var buyerEmail = '[[${requestDto.buyerEmail}]]';
+            var buyerAddress = '[[${requestDto.buyerAddress}]]';
+
+            IMP.request_pay({
+                    pg : 'html5_inicis.INIpayTest',
+                    pay_method : 'card',
+                    merchant_uid: orderUid, // 주문 번호
+                    name : itemName, // 상품 이름
+                    amount : paymentPrice, // 상품 가격
+                    buyer_email : buyerEmail, // 구매자 이메일
+                    buyer_name : buyerName, // 구매자 이름
+                    buyer_tel : '010-1234-5678', // 임의의 값
+                    buyer_addr : buyerAddress, // 구매자 주소
+                    buyer_postcode : '123-456', // 임의의 값
+                },
+                function(rsp) {
+                    if (rsp.success) {
+                           var token = $("meta[name='_csrf']").attr("content");
+                        var header = $("meta[name='_csrf_header']").attr("content");
+                        alert('call back!!: ' + JSON.stringify(rsp));
+                        // 결제 성공 시: 결제 승인 또는 가상계좌 발급에 성공한 경우
+                        // jQuery로 HTTP 요청
+                        console.log(rsp.imp_uid + '***********' + rsp.merchant_uid);
+                        jQuery.ajax({
+                            url: "/payment",
+                            method: "POST",
+                            headers: {"Content-Type": "application/json", [header]: token},
+                            data: JSON.stringify({
+                                "paymentUid": rsp.imp_uid,      // 결제 고유번호
+                                "orderUid": rsp.merchant_uid   // 주문번호
+                            })
+
+                        }).done(function (response) {
+                            console.log(response);
+                            // 가맹점 서버 결제 API 성공시 로직
+                            //alert('Please, Check your payment result page!!' + rsp);
+                            alert('결제 완료!' + rsp);
+                            window.location.href = "/orders";
+                        })
+                    } else {
+                        alert("success? "+ rsp.success+ ", 결제에 실패하였습니다. 에러 내용: " + JSON.stringify(rsp));
+                        alert('결제 실패!' + rsp);
+                        window.location.href = "/cart";
+                    }
+                });
+        }
+    </script>
+    <style>
+        body {
+           font-family: Arial, sans-serif;
+           background-color: #f4f4f4;
+           margin: 0;
+           padding: 0;
+       }
+       .container {
+           max-width: 800px;
+           margin: 20px auto;
+           padding: 20px;
+           background-color: #fff;
+           border: 1px solid #ddd;
+           border-radius: 8px;
+           box-shadow: 0 0 10px rgba(0,0,0,0.1);
+           text-align: center;
+       }
+       h1 {
+           margin-bottom: 20px;
+       }
+       .pay-button-container {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           gap: 20px;
+       }
+       .pay-button {
+           padding: 12px 24px;
+           font-size: 16px;
+           font-weight: bold;
+           color: #fff;
+           background-color: #ff4500;
+           border: none;
+           border-radius: 5px;
+           cursor: pointer;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+           transition: background-color 0.3s ease, transform 0.2s ease;
+       }
+       .pay-button:hover {
+           background-color: #ff5722;
+           transform: translateY(-1px);
+       }
+    </style>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+    <h1>결제 페이지</h1>
+    <div class="pay-button-container">
+        <img src="/img/아이콘.png" alt="아이콘" style="width: 500px; height: 500px;">
+        <button th:with="requestDto=${requestDto}" class="pay-button" onclick="requestPay()">
+            결제하기
+        </button>
+    </div>
+</div>
+</body>
+</html>

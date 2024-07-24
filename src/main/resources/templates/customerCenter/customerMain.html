@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+</head>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function valid() {
+           var isAdmin = [[${selectedNotice}]];
+           console.log(isAdmin);
+           if (isAdmin != 'ADMIN') {
+               alert('권한이 없습니다.');
+               return false;
+           } else {
+               alert('권한이 없습니다. 문의사항 작성으로 이동');
+               document.getElementById("writeBtn").submit();
+               return true;
+           }
+       }
+
+       function valid2() {
+           var isAdmin = [[${selectedNotice}]];
+           console.log(isAdmin);
+           if (isAdmin != 'USER') {
+               alert('로그인이 필요합니다.');
+               return false;
+           } if (isAdmin == 'ADMIN') {
+               alert('공지사항 작성으로 이동.');
+               document.getElementById("writeBtn").submit();
+               return true;
+           } else {
+               document.getElementById("writeBtn2").submit();
+               return true;
+           }
+       }
+
+           function page(page){
+                  var NTC = [[ ${NTC} ]]; // Thymeleaf 변수를 JavaScript 변수로 가져오기
+                  console.log(NTC); // 콘솔에 Thymeleaf 변수 출력
+                  var notice = NTC;
+                  // 페이지 이동
+                  location.href="/Cpost/" + page + "/" + notice;
+                  }
+
+    </script>
+</th:block>
+
+<th:block layout:fragment="css">
+    <style>
+
+        /* 추가적인 커스텀 스타일 */
+        .card-container {
+            margin-top: 20px;
+        }
+        .card-body {
+            padding: 20px;
+            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.1); /* 그림자 효과 */
+            border-radius: 10px; /* 모서리를 둥글게 */
+            overflow: hidden; /* 내용 넘침 방지 */
+        }
+        .post-actions {
+            margin-top: 20px;
+        }
+        .table td, .table th {
+            text-align: center;
+        }
+        .card-title{
+            font-weight:bold;
+        }
+        .btn-primary{
+            background-color: white !important;
+            color:black !important;
+            border: 1px solid #9ccc65 !important;
+        }
+        .btn-primary:hover{
+            background-color:#9ccc65 !important;
+        }
+    </style>
+</th:block>
+<body>
+
+<div layout:fragment="content">
+    <div class="container">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <!-- 검색 결과 표시 -->
+        <div th:if="${not #strings.isEmpty(itemSearchDto.searchQuery)}" class="text-center mb-4">
+            <h3 th:text="${itemSearchDto.searchQuery + ' 검색결과'}"></h3>
+        </div>
+
+        <div class="card-container">
+            <!-- 테이블 카드 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:if="${itemSearchDto.notice == T(com.example.Spring_shop.constant.Notice).ADMIN}">공지 사항</h5>
+                    <h5 class="card-title" th:if="${itemSearchDto.notice == T(com.example.Spring_shop.constant.Notice).USER}">문의 사항</h5>
+                    <div class="table-container">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col">번호</th>
+                                <th scope="col">작성자</th>
+                                <th scope="col">제목</th>
+                                <th scope="col">조회</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- dtos 변수를 반복하여 테이블 행을 생성합니다. -->
+                            <tr th:each="dto, iterStat : ${dtos.getContent()}">
+                                <td th:text="${dtos.getContent().size() - iterStat.index}"></td>
+                                <td th:text="${dto.writer}"></td>
+                                <td th:text="${dto.title}"></td>
+                                <td><a th:href="@{/view/{id}(id=${dto.id})}" class="btn btn-primary btn-sm">조회</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 글 작성 버튼 -->
+                    <div class="post-actions text-center">
+                        <div th:if="${itemSearchDto.notice == T(com.example.Spring_shop.constant.Notice).ADMIN}">
+                            <form th:id="writeBtn" th:action="@{/customerCenter/write}" style="display: inline;">
+                                <button type="button" class="btn btn-primary box1" onclick="valid()" style="background-color:#9ccc65; color:black;
+                                border: 1px solid #9ccc65; hover:background-color:#9ccc65;">공지작성</button>
+                            </form>
+                        </div>
+                        <div th:if="${itemSearchDto.notice == T(com.example.Spring_shop.constant.Notice).USER}">
+                            <form th:id="writeBtn2" th:action="@{/customerCenter/write}" style="display: inline;">
+                                <button type="button" class="btn btn-primary box1" onclick="valid2()" style="background-color:#9ccc65; color:black;
+                                border: 1px solid #9ccc65; hover:background-color:#9ccc65;">문의작성</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 페이지 네비게이션 -->
+                    <div th:with="start=${(dtos.number/maxPage)*maxPage +1}, end=(${(dtos.totalPages == 0) ? 1 : (start + (maxPage-1) < dtos.totalPages ? start + (maxPage - 1) : dtos.totalPages)})" style="margin-top: 20px;">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${dtos.number eq 0}? 'disabled'">
+                                <a th:onclick="'javascript:page(' + (${dtos.number} - 1) + ')'" aria-label="Previous" class="page-link">
+                                    <span aria-hidden="true">이전</span>
+                                </a>
+                            </li>
+                            <li class="page-item" th:each="page: ${#numbers.sequence(start,end)}" th:classappend="${dtos.number eq page-1}? 'active' : ''">
+                                <a th:onclick="'javascript:page(' + (${page - 1}) + ')'" th:inline="text" class="page-link" th:text="${page}"></a>
+                            </li>
+                            <li class="page-item" th:classappend="${dtos.last}?'disabled'">
+                                <a th:onclick="'javascript:page(' + (${dtos.number} + 1) + ')'" aria-label="Next" class="page-link">
+                                    <span aria-hidden="true">다음</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
