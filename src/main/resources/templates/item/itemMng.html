@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<!-- 사용자 CSS 추가 -->
+<th:bloock layout:fragment="css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 테이블 스타일 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        /* 페이지네이션 스타일 */
+        .pagination {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination .page-link {
+            padding: 8px 16px;
+            margin: 0 4px;
+            color: #black;
+            border: 1px solid #9ccc65 !important;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #9ccc65;
+            color: black;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: black;
+            pointer-events: none;
+            background-color: white;
+            border-color: #9ccc65;
+        }
+
+        /* 검색 폼 스타일 */
+        .search-form {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* 요소들을 오른쪽으로 정렬 */
+            margin-bottom: 20px;
+        }
+
+        .search-form .search-input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-form .search-input-group input[type="text"] {
+            width: 200px;
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .search-form .search-input-group button[type="submit"] {
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .search-form .search-input-group button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .search-form select {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+    </style>
+</th:bloock>
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+                   $("searchBtn").on("click",function(e){
+                       e.preventDefault(); //검색버튼 클릭시 form 태그 전송을 막습니다.
+                       page(0);
+                   });
+               });
+
+               function page(page){
+                   var searchDateType = $("#searchDateType").val();
+                   var searchSellStatus = $("#searchSellStatus").val();
+                   var searchBy = $("#searchBy").val();
+                   var searchQuery = $("#searchQuery").val();
+
+               location.href="/admin/items/" + page + "? searchDateType=" + searchDateType
+               + "&searchSellStatus=" + searchSellStatus + "&searchBy=" + searchBy
+               + "&searchQuery=" + searchQuery;
+               }
+    </script>
+
+</th:block>
+<body>
+<div layout:fragment="content" class="container">
+    <form th:action="@{'/admin/items/' + ${items.number}}" role="form" method="get" th:object="${items}">
+    <!-- 검색 폼을 상단에 배치 -->
+    <div class="search-form" th:object="${itemSearchDto}">
+        <select th:field="*{searchDateType}" class="form-control">
+            <option value="all">전체 기간</option>
+            <option value="1d">1일</option>
+            <option value="1w">1주</option>
+            <option value="1m">1개월</option>
+            <option value="6m">6개월</option>
+        </select>
+        <select th:field="*{searchSellStatus}" class="form-control">
+            <option value="">판매 상태(전체)</option>
+            <option value="SELL">판매</option>
+            <option value="SOLD_OUT">품절</option>
+        </select>
+        <select th:field="*{searchBy}" class="form-control">
+            <option value="itemNm">상품명</option>
+            <option value="createdBy">등록자</option>
+        </select>
+        <div class="search-input-group">
+            <input th:field="*{searchQuery}" type="text" class="form-control" placeholder="검색어를 입력하세요">
+            <button id="searchBtn" type="submit" class="btn btn-primary" style="background-color:#9ccc65; color:black;">검색</button>
+        </div>
+    </div>
+
+    <!-- 나머지 컨텐츠를 추가 -->
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>상품아이디</th>
+                <th>상품명</th>
+                <th>상태</th>
+                <th>등록자</th>
+                <th>등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items.content}">
+                <td th:text="${item.id}"></td>
+                <td>
+                    <a th:href="@{/admin/item/{id}(id=${item.id})}" th:text="${item.itemNm}"></a>
+                </td>
+                <td th:text="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL} ? '판매중' : '품절'"></td>
+                <td th:text="${item.createdBy}"></td>
+                <td th:text="${item.regTime}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <div th:with="start=${(items.number/maxPage)*maxPage+1},
+        end=(${(items.totalPages ==0) ?
+        1 : (start + (maxPage-1) < items.totalPages ? start + (maxPage -1) : items.totalPages)})">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${items.first}?'disabled'">
+                    <a th:onclick="'javascript:page(' + ${items.number - 1} + ')'" aria-label="Previous" class="page-link">
+                        <span aria-hidden="true" style="color:black;">이전</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="page: ${#numbers.sequence(start,end)}"
+                    th:classappend="${items.number eq page-1}?'active':''">
+                    <a th:onclick="'javascript:page(' + ${page - 1} + ')'" th:text="${page}" class="page-link" style="color:black; background-color:white; transition: background-color 0.3s;"
+                       onmouseover="this.style.backgroundColor='#9ccc65';" onmouseout="this.style.backgroundColor='white';">
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${items.last}?'disabled'">
+                    <a th:onclick="'javascript:page(' + ${items.number +1} +')'" aria-label="Next" class="page-link">
+                        <span aria-hidden="true" style="color:black;">다음</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </form>
+</div>
+</body>
+</html>

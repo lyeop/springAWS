@@ -13,18 +13,22 @@ public class CartDetailDto {
     private int price;
     private int count;
     private String imgUrl;
-    private LocalDateTime localDateTime;
+    private int BidPrice;
+    private int lowestBidPrice;
+    private LocalDateTime endDate;
+    private Long itemId;
 
 
     public CartDetailDto(Long cartItemId, String itemNm, int price, int count, String imgUrl
-    ,LocalDateTime localDateTime) {
+            ,int BidPrice,int lowestBidPrice, LocalDateTime endDate, Long itemId) {
         this.cartItemId = cartItemId;
         this.itemNm = itemNm;
         this.price = price;
-        this.count = count;
+        this.count =count;
         this.imgUrl = imgUrl;
-        this.localDateTime=localDateTime;
+        this.BidPrice=BidPrice;
+        this.lowestBidPrice = lowestBidPrice;
+        this.endDate=endDate;
+        this.itemId=itemId;
     }
-
-
 }

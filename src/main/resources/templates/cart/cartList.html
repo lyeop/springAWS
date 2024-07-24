@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+</head>
+
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+                const cartItemList = [[${cartItems}]];
+
+           function initializeCharts() {
+           cartItemList.forEach((cartItem, index) => {
+        const ctx = document.getElementById(`bidChart_${index}`).getContext('2d');
+        const cartItemId = cartItem.itemId;// Check if this is how you access item ID
+        var itemId = parseInt(cartItemId);
+        const url = `/fetchBidBigData/${itemId}`; // Make sure this URL is correct
+
+
+        fetchBidData(url, ctx, index);
+
+        setInterval(() => {
+            fetchBidData(url, ctx, index)
+                }, 5000);
+            });
+        }
+        initializeCharts();
+            $("input[name=cartChkBox]").change(function(){
+                getOrderTotalPrice();
+            });
+
+            initializeTimers();  // 타이머 초기화 함수 호출
+
+            $("input[name=cartChkBox]").change(function(){
+                getOrderTotalPrice();
+            });
+
+            // 전체 선택 체크박스 상태 변경 시 모든 체크박스 선택/해제 및 총 주문 금액 업데이트
+            $("#checkall").change(function(){
+                checkAll();
+                getOrderTotalPrice();
+            });
+
+        });
+
+        function getOrderTotalPrice() {
+            var totalPrice = 0;
+
+            $("input[name=cartChkBox]:checked").each(function() {
+                var cartItemId = $(this).val();
+                var itemPriceText = $("#myBidPrice_" + cartItemId).text().replace('원', '').trim();
+                var itemPrice = parseInt(itemPriceText);
+
+                if (!isNaN(itemPrice)) {
+                    totalPrice += itemPrice;
+                }
+            });
+
+            $("#orderTotalPrice").text(totalPrice.toLocaleString() + '원');
+        }
+
+ function fetchBidData(url, ctx, index) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            var labels = [];
+            var currentBidPrices = [];
+            var lowBidPrices = [];
+
+            // 서버에서 받은 데이터를 처리
+            labels.push(data.itemNm+' 경 매 ');
+            currentBidPrices.push(data.bidPrice); // 현재 입찰가 데이터 추가
+            lowBidPrices.push(data.lowesBidPrice); // 최저 입찰가 데이터 추가
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '최고 입찰가',
+                        data: currentBidPrices,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '최근 입찰가',
+                        data: lowBidPrices,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching bid data:', error);
+        }
+    });
+}
+
+        function changeCount(obj){
+
+           var cartItemId = obj.id.split('_')[1];
+            var price = $("#price_" + cartItemId).data("price");
+            var bidPriceStr = $("#lowBidPrice_" + cartItemId).val();
+
+            if (!isNaN(bidPriceStr)) {
+                var bidPrice = parseInt(bidPriceStr);
+                updateCartItemCount(cartItemId, bidPrice);
+            } else {
+                alert("올바른 숫자를 입력하세요.");
+            }
+        }
+
+        function checkAll(){
+            if($("#checkall").prop("checked")){
+                $("input[name=cartChkBox]").prop("checked",true);
+            }
+            else{
+                $("input[name=cartChkBox]").prop("checked",false);
+            }
+
+        }
+
+        function updateCartItemCount(cartItemId, bidPrice){
+            var token= $("meta[name='_csrf']").attr("content");
+            var header=$("meta[name='_csrf_header']").attr("content");
+            var url="/cartItem/" + cartItemId + "?bidPrice="+ bidPrice;
+
+            $.ajax({
+                url : url,
+                type : "PATCH",
+                beforeSend : function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType : "json",
+                cache : false,
+                success : function(result, status){
+                },
+                error : function(jqXHR, status , error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요.');
+                        location.href='/members/login';
+                    }else{
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
+
+          function deleteCartItem(obj){
+           var currentBidPrice = parseInt($("#currentBidPrice_" + cartItemId).text().replace('원', '').trim());
+              var myBidPrice = parseInt($("#myBidPrice_" + cartItemId).text().replace('원', '').trim());
+              if (currentBidPrice == myBidPrice) {
+                 alert('최고 입찰자입니다. 입찰 포기를 할 수 없습니다.');
+                 return;
+                  }
+            var cartItemId = obj.dataset.id;
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            var url = "/cartItem/" + cartItemId;
+            $.ajax({
+                url : url,
+                type : "DELETE",
+                beforeSend : function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType : "json",
+                cache : false,
+                success : function(result, status){
+                    $("#cartItem_" + cartItemId).remove();
+                    location.href='/cart';
+                },
+                error : function(jqXHR, status, error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요.');
+                        location.href='/members/login';
+                    }
+                    else{
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
+
+        function orders(){
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+
+            var url = "/cart/orders";
+
+            var dataList = [];
+            var paramData = {};
+
+            var isPriceMismatch = false;
+            var isTimeMismatch = false;
+            $("input[name=cartChkBox]:checked").each(function(){
+                var cartItemId = $(this).val();
+                var currentBidPriceText = $("#currentBidPrice_" + cartItemId).text().replace('원', '').trim();
+                var myBidPriceText = $("#myBidPrice_" + cartItemId).text().replace('원', '').trim();
+                var currentBidPrice = parseInt(currentBidPriceText);
+                var myBidPrice = parseInt(myBidPriceText);
+                var timerElement = $("#timer_" +cartItemId);
+                var timeOut= parseInt(timerElement.text().replace('마감', '').trim());
+
+               console.log("받아온시간"+timerElement);
+                console.log('시간'+timeOut);
+                if (currentBidPrice !== myBidPrice) {
+                    isPriceMismatch = true;
+                    return false;
+                }
+                else if(!isNaN(timeOut)){
+                    isTimeMismatch = true;
+
+                    return false;
+                }
+                var data = {
+                    cartItemId: cartItemId
+                };
+                dataList.push(data);
+            });
+
+            if (isPriceMismatch) {
+                alert("최고 입찰가와 나의 입찰가의 금액이 같지 않습니다.");
+                return;
+            }
+            if(isTimeMismatch){
+                alert("마감이 되지않은 상품입니다.");
+                return;
+            }
+            paramData['cartOrderDtoList'] = dataList;
+            var param = JSON.stringify(paramData);
+
+            console.log("JSON Data: " + param);
+
+            $.ajax({
+                url : url,
+                type : "POST",
+                data : param,
+                contentType : "application/json",
+                beforeSend : function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                success : function(result, status){
+                    alert("결제를 진행.");
+                    location.href='/payment/' + result;
+                },
+                error : function(jqXHR, status, error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요.');
+                        location.href='/members/login';
+                    }
+                    else{
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
+
+      function bid(obj) {
+        console.log("aaa");
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            var cartItemId = obj.id.split('_')[1];
+            var bidUrl = "/bid/cart/" + cartItemId;
+
+            var newBidPrice = parseInt($("#hiddenCurrentBidPrice_" + cartItemId).val());
+            var lowestBidPrice = parseInt($("#lowBidPrice_" + cartItemId).val());
+            var itemId = $("#hiddenItemId_" + cartItemId).val();
+
+            var bidCartUrl = "/bid/" + itemId;
+
+            console.log(newBidPrice);
+            console.log(lowestBidPrice);
+            console.log("newBidPrice:", newBidPrice, "Type:", typeof newBidPrice);
+             console.log("lowestBidPrice:", lowestBidPrice, "Type:", typeof lowestBidPrice);
+             console.log(cartItemId);
+             if (isNaN(newBidPrice)) {
+           alert("새로운 입찰가가 유효하지 않습니다.");
+           return;
+              }
+            if (newBidPrice >= lowestBidPrice) {
+                alert("입찰가는 최고 현재 입찰가보다 작거나 같을수 없습니다.");
+                return;
+            }
+
+       var bidParamData = {
+        cartItemId: cartItemId,
+        itemId: itemId,
+        newBidPrice: newBidPrice,
+        lowestBidPrice:lowestBidPrice
+    };
+
+    var bidParam = JSON.stringify(bidParamData);
+
+    $.ajax({
+        url: bidUrl,
+        type: "PATCH",
+        contentType: "application/json",
+        data: bidParam,
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader(header, token);
+        },
+        dataType: "json",
+        cache: false,
+        success: function(result, status) {
+            alert("입찰이 완료되었습니다.");
+            location.reload();
+
+        },
+        error: function(jqXHR, status, error) {
+            if (jqXHR.status == '401') {
+                alert('로그인 후 이용해주세요.');
+                location.href = '/members/login';
+            } else {
+                alert(jqXHR.responseText);
+            }
+        }
+    });
+}
+
+
+        function displayRemainingTime(targetDate, elementId) {
+            const now = new Date();
+            const endDate = new Date(targetDate);
+            const timeRemaining = endDate - now;
+
+            if (timeRemaining <= 0) {
+                document.getElementById(elementId).textContent = '마감';
+                document.getElementById(`bidButton_${elementId.split('_')[1]}`).disabled = true; // 입찰 버튼 비활성화
+                const deleteButton = document.querySelector(`[data-id="${elementId.split('_')[1]}"]`);
+                deleteButton.disabled = true; // 삭제 버튼 비활성화
+                deleteButton.classList.add('disabled'); // CSS 클래스 추가로 클릭 방지
+                return;
+            }
+
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            document.getElementById(elementId).textContent = `${days}일 ${hours}시간 ${minutes}분 ${seconds}초`;
+        }
+
+        function startTimer(targetDate, elementId) {
+            setInterval(() => {
+                displayRemainingTime(targetDate, elementId);
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 각 cartItem별로 남은 시간 타이머 시작
+            document.querySelectorAll('.timer').forEach(timer => {
+                const endDate = timer.getAttribute('data-end-date');
+                const elementId = timer.id;
+                startTimer(endDate, elementId);
+            });
+        });
+      function initializeCharts() {
+            const cartItemList = [[${cartItemList}]];
+            cartItemList.forEach((item, index) => {
+                const ctx = document.getElementById(`bidChart_${index}`).getContext('2d');
+                const itemId = item.item.id; // 아이템 ID
+                const url = `/fetchBidData/${itemId}`; // 데이터 가져올 URL
+
+                fetchBidData(url, ctx, index);
+
+                setInterval(() => {
+                    fetchBidData(url, ctx, index); // 5초마다 데이터 업데이트
+                }, 5000);
+            });
+        }
+    </script>
+</th:block>
+<th:block layout:fragment="css">
+    <style>
+        body {
+             font-family: 'Arial', sans-serif;
+             position: relative;
+             background-image: url('/img/배경1.png');
+             background-size: cover; /* 이미지를 화면에 꽉 채우도록 설정 */
+             background-position: center; /* 이미지를 센터 정렬 */
+             /* 다른 배경 이미지 관련 속성들을 필요에 따라 추가할 수 있습니다 */
+
+         }
+         .content-mg {
+             margin-left: 15%; /* Adjusted left margin for better centering */
+             margin-right: 15%; /* Adjusted right margin for better centering */
+             margin-top: 2%;
+             margin-bottom: 100px;
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added box shadow */
+             border: 1px solid #ddd; /* Added border */
+             border-radius: 15px; /* Added border radius */
+             background-color: #fff;
+             padding: 20px; /* Added padding for spacing */
+         }
+         .repImgDiv {
+            width: 200px; /* Fixed width for the image container */
+            height: auto; /* Ensures image height adjusts accordingly */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .repImg {
+            max-width: 100%; /* Ensures image fits within the container */
+            max-height: 200px; /* Maximum height for the image */
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+         .card {
+             width: 750px;
+             height: 100%;
+             padding: 30px;
+             margin-bottom: 20px;
+             border-radius: 15px;
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+             background-color: #fff;
+         }
+         .fs18 {
+             font-size: 18px;
+         }
+         .fs24 {
+             font-size: 24px;
+         }
+         .disabled {
+             pointer-events: none; /* 클릭 방지 */
+             opacity: 0.5; /* 반투명 */
+         }
+         .timer-section, .bid-section {
+             margin-top: 20px;
+             padding: 20px;
+             border: 1px solid #ddd;
+             border-radius: 10px;
+             background-color: #fff;
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+         }
+         .timer-section p, .bid-section p {
+             margin-bottom: 10px;
+         }
+         .text-danger {
+             color: #dc3545 !important;
+         }
+         .input-group-text {
+             background-color: #f8f9fa;
+             border: 1px solid #ced4da;
+         }
+         .input-group-prepend span {
+             display: inline-block;
+             margin-left: 10px;
+         }
+         .btn {
+             transition: background-color 0.3s, transform 0.3s;
+         }
+         .btn-lg {
+             font-size: 1.25rem;
+             padding: 10px 20px;
+         }
+         .rounded-pill {
+             border-radius: 50px;
+         }
+         .display-5 {
+             font-size: 2rem;
+         }
+         .border-success-subtle {
+             border-color: #d4edda;
+         }
+         .lead {
+             font-size: 1.25rem;
+         }
+         .rounded {
+             border-radius: 15px;
+         }
+         .my-4 {
+             margin: 1rem 0;
+         }
+         .text-right {
+             text-align: right;
+         }
+         .text-left {
+             text-align: left;
+         }
+         #myChart {
+             margin: 20px auto;
+             display: block;
+         }
+         #timer {
+             font-size: 1.5rem;
+             font-weight: bold;
+             color: #dc3545;
+         }
+         .item-header {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 20px;
+         }
+         .item-name {
+             font-size: 2rem;
+             font-weight: bold;
+         }
+         .item-detail {
+             font-size: 1.25rem;
+             color: #555;
+         }
+        .canvas-container {
+            max-width: 400px; /* Adjust max width as needed */
+            margin: auto; /* Center the canvas horizontally */
+        }
+
+        .bid-section canvas {
+            max-width: 100%; /* Ensures canvas width scales with its container */
+            height: auto; /* Maintains aspect ratio */
+        }
+        /* 상품정보 요소를 가운데 정렬 */
+        .align-self-center {
+            display: flex;
+            flex-direction: column;
+            margin-left: 40px;
+        }
+        .banner-image {
+            text-align: center; /* 가운데 정렬 */
+            margin-bottom: 20px; /* 원하는 만큼 마진 추가 */
+        }
+        .banner-image img {
+            max-width: 100%; /* 이미지 최대 너비 */
+            max-height: 200px; /* 이미지 최대 높이 */
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</th:block>
+<div layout:fragment="content" class="content-mg">
+    <div class="banner-image">
+        <img th:src="@{/img/아이콘.png}" alt="...">
+    </div>
+    <h2 class="mb-4">입찰 목록</h2>
+    <div>
+        <table class="table">
+            <colgroup>
+                <col width="15%">
+                <col width="70%">
+                <col width="15%">
+            </colgroup>
+            <thead>
+            <tr class="text-center">
+                <th>
+                    <input type="checkbox" id="checkall" onclick="checkAll()" onchange="getOrderTotalPrice()"> 전체선택
+                </th>
+                <th>상품정보</th>
+                <th>입찰현황</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cartItem, cartItemStat : ${cartItems}" th:id="'cartItem_' + ${cartItem.cartItemId}">
+                <td class="text-center align-middle">
+                    <input type="checkbox" name="cartChkBox" th:value="${cartItem.cartItemId}" id="cartItemId"
+                           onchange="getOrderTotalPrice()">
+                    <input type="hidden" th:id="'hiddenItemId_' + ${cartItem.cartItemId}" th:value="${cartItem.itemId}"/>
+                </td>
+                <td class="d-flex">
+                    <div class="repImgDiv align-self-center">
+                        <img th:src="${cartItem.imgUrl}" class="rounded repImg" th:alt="${cartItem.itemNm}">
+                    </div>
+                    <div class="align-self-center" style="margin-left:100px">
+                        <span th:id="'itemNm_'+${cartItem.itemNm}" th:text="'상품 : '+${cartItem.itemNm}" class="f24 font-weight-bold d-block mb-2"></span>
+                        <div class="f24 font-weight-bold mb-2">
+                            <input type="hidden" th:id="'hiddenCurrentBidPrice_'+${cartItem.cartItemId}" th:value="${cartItem.BidPrice}">
+                            최고 입찰가: <span th:id="'currentBidPrice_'+${cartItem.cartItemId}" th:text="${cartItem.BidPrice}"></span>원
+                        </div>
+                        <div class="f24 font-weight-bold mb-2">
+                            나의 입찰가: <span th:id="'myBidPrice_'+${cartItem.cartItemId}" th:text="${cartItem.Price}"></span>원
+                        </div>
+                        <div class="f24 font-weight-bold mb-2">
+                            마감일: <span th:text="${#temporals.format(cartItem.endDate, 'yyyy년 M월 d일 H시 m분')}"></span>
+                            <p style="margin-bottom:0px;">남은 시간</p>
+                            <div th:id="'timer_' + ${cartItem.cartItemId}" class="timer" th:data-end-date="${cartItem.endDate}"></div>
+                        </div>
+                        <div class="fs18 font-weight-light mb-2">
+                            <div class="input-group justify-content-center">
+                                <input type="number" name="bidPrice" th:id="'lowBidPrice_' + ${cartItem.cartItemId}"
+                                       th:value="${cartItem.lowestBidPrice}" th:min="${cartItem.lowestBidPrice}" step="1000"
+                                       class="form-control mr-2" placeholder="입찰가를 입력하세요" onchange="changeCount(this)"  style="margin-left: 0px;">
+                                <button type="button" class="btn btn-primary"
+                                        th:id="'bidButton_' + ${cartItem.cartItemId}"
+                                        th:data-id="${cartItem.cartItemId}"
+                                        th:onclick="bid(this)">입찰하기</button>
+                            </div>
+                        </div>
+                        <div class="fs18 font-weight-light">
+                            <button type="button" class="close" aria-label="Close">
+                                <span aria-hidden="true" th:data-id="${cartItem.cartItemId}" onclick="deleteCartItem(this)">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center align-middle">
+                    <div class="align-self-center">
+                        <canvas th:id="'bidChart_' + ${cartItemStat.index}" style="max-width: 300px;"></canvas>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <h2 class="text-center">
+            총 주문 금액 : <span id="orderTotalPrice" class="text-danger">0원</span>
+        </h2>
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-primary btn-lg" onclick="orders()">주문하기</button>
+        </div>
+    </div>
+</div>
+</html>

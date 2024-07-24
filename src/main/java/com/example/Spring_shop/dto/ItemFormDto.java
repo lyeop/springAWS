@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,17 +18,25 @@ import java.util.List;
 public class ItemFormDto {
     private  Long id;
 
+    private int startingBidPrice;
+
+    private int lowestBidPrice;
+
     @NotBlank(message = "상품명은 필수 입력 값입니다.")
     private String itemNm;
 
-    @NotNull(message = "가격은 필수 입력 값입니다.")
     private Integer price;
 
-    @NotBlank(message = "이름은 필수 입력 값입니다.")
+    @NotBlank(message = "내용은 필수 입력 값입니다.")
     private String itemDetail;
 
-    @NotNull(message = "재고는 필수 입력 값입니다.")
-    private Integer stockNumber;
+    private Integer stockNumber = 1;
+
+    @NotNull(message = "마감일는 필수 입력 값입니다.")
+    private LocalDateTime endDate;
+
+    @NotNull(message = "경매 시작가는 필수 입력 값입니다.")
+    private Integer BidPrice;
 
     private ItemSellStatus itemSellStatus;
 

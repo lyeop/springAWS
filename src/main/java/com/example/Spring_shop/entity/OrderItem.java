@@ -22,6 +22,7 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    private String itemNm;
     private int orderPrice;
     private int count;
 //    private LocalDateTime regTime;
@@ -31,8 +32,9 @@ public class OrderItem extends BaseEntity {
     public static OrderItem createOrderItem(Item item, int count){
         OrderItem orderItem = new OrderItem();
         orderItem.setItem(item);
+        orderItem.setItemNm(item.getItemNm());
         orderItem.setCount(count);
-        orderItem.setOrderPrice(item.getPrice());
+        orderItem.setOrderPrice(item.getBidPrice());
         item.removesStock(count);
         return orderItem;
     }

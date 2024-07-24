@@ -2,6 +2,7 @@ package com.example.Spring_shop.dto;
 
 import com.example.Spring_shop.constant.ItemSellStatus;
 import com.example.Spring_shop.constant.ItemValue;
+import com.example.Spring_shop.constant.Notice;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +18,8 @@ public class ItemSearchDto {
     private String searchBy; //조회 유형
 
     private String searchQuery = ""; //검색 단어
+
+    private Notice notice;
+
+
 }

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+</head>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function cancelOrder(orderId){
+            var token = $("meta[name = '_csrf']").attr("content");
+            var header = $("meta[name = '_csrf_header']").attr("content");
+
+            var url = "/order/" + orderId + "/cancel";
+            var paramData = {
+                orderId : orderId,
+            }
+            var param = JSON.stringify(paramData);
+            $.ajax({
+                url : url,
+                type : "POST",
+                contentType : "application/json",
+                data : param,
+                beforeSend : function(xhr){
+                    /* 데이터 전송하기 전에 헤더에 csrf 값을 설정 */
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType : "json",
+                cache : false,
+                success : function(result, status){
+                    alert("주문이 취소 되었습니다.");
+                    location.href = '/orders/' + [[${page}]];
+                },
+                error : function(jqXHR, status, error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요.');
+                        location.href='/members/login';
+                    }
+                    else{
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
+    </script>
+</th:block>
+<th:block layout:fragment="css">
+    <style>
+        .content-mg {
+            margin: auto 10%;
+            margin-top: 2%;
+            margin-bottom: 100px;
+        }
+        .repImgDiv {
+            margin: auto 15px;
+            height: auto;
+        }
+        .repImg {
+            max-width: 100%; /* Ensures image fits within the container */
+            max-height: 100%; /* Maximum height for the image */
+            width: 200px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            width: 60%;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        .fs18 {
+            font-size: 18px;
+        }
+        .fs24 {
+            font-size: 24px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            display: flex;
+            flex-direction: column;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .order-item img {
+            margin-right: 20px;
+            border-radius: 5px;
+        }
+        .order-details {
+            flex-grow: 1;
+        }
+        .order-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .pagination {
+            margin-top: 30px;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content" class="content-mg">
+    <h2 class="mb-4" style="margin-left: 300px;">구매 이력</h2>
+    <div th:each="order : ${orders.getContent()}">
+        <div class="card" style="margin-bottom:30px;">
+            <div class="card-header">
+                <h4 th:text="${order.orderDate} + ' 주문'"></h4>
+                <div>
+                    <th:block th:if="${order.orderStatus == T(com.example.Spring_shop.constant.OrderStatus).ORDER}">
+                        <button type="button" class="btn btn-outline-secondary" th:value="${order.orderId}"
+                                onclick="cancelOrder(this.value)">주문취소</button>
+                    </th:block>
+                    <th:block th:unless="${order.orderStatus == T(com.example.Spring_shop.constant.OrderStatus).ORDER}">
+                        <h4 style="color: red;">(취소 완료)</h4>
+                    </th:block>
+                </div>
+            </div>
+            <div class="card-body">
+                <div th:each="orderItem : ${order.orderItemDtoList}" class="order-item">
+                    <img th:src="${orderItem.imgUrl}" class="repImg" th:alt="${orderItem.itemNm}">
+                    <div class="order-details">
+                        <span th:text="${orderItem.itemNm}" class="fs24 font-weight-bold"></span>
+                        <div class="fs18 font-weight-light">
+                            <span th:text="${orderItem.orderPrice} + '원'"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <!-- Additional order actions can be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:with="start = ${(orders.number/maxPage) * maxPage + 1},
+    end=(${(orders.totalPages == 0) ? 1 : (start + (maxPage-1) < orders.totalPages ?
+    start + (maxPages - 1) : orders.totalPages)})">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${orders.number eq 0} ? 'disabled' : ''">
+                <a th:href="@{'/orders/' + ${orders.number-1}}" aria-label='Previous' class="page-link">
+                    <span aria-hidden="true">이전</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="page: ${#numbers.sequence(start, end)}"
+                th:classappend="${orders.number eq page -1}? 'active' : ''">
+                <a th:href="@{'/orders/' + ${page -1}}" th:inline="text" class="page-link">[[${page}]]</a>
+            </li>
+            <li class="page-item" th:classappend="${orders.number + 1 ge orders.totalPages} ? 'disabled' : ''">
+                <a th:href="@{'/orders/' + ${orders.number+1}}" aria-label="Next" class="page-link">
+                    <span aria-hidden="true">다음</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+</html>
