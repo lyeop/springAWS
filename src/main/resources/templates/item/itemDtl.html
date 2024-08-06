@@ -30,6 +30,8 @@
                    }]
                },
                options: {
+               responsive: true, /* 그래프가 반응형으로 조정되도록 설정 */
+               maintainAspectRatio: false,
                    scales: {
                        x: {
                            title: {
@@ -46,6 +48,15 @@
                    }
                }
            });
+            function resizeCanvas() {
+            const canvas = document.getElementById('myChart');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            myChart.resize();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
 
                   var bid = [[${bidData}]];
@@ -70,6 +81,7 @@
                document.getElementById('timer').textContent = '마감';
                document.getElementById('buyButton').disabled = false;
                document.getElementById('bidButton').disabled = true; // 입찰하기 버튼 비활성화
+               document.getElementById('addCart').disabled = true; // 입찰하기 버튼 비활성화
                return;
            }
 
@@ -188,6 +200,57 @@
    });
 }
 
+function addCart(){
+             var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            var timeRemainingText = document.getElementById('timer').textContent.trim();
+             var itemId = $("#itemId").val();
+            var url = "/cart";
+            var bidPrice =  parseInt($("#bidPrice").val())
+            var lowestBidPrice = '0';
+
+       if (timeRemainingText === '마감') {
+        alert('마감된 상품 입니다.');
+        return;
+    }
+
+
+         var cartParamData = {
+               itemId: itemId,
+               BidPrice: parseInt($("#bidPrice").val()),
+               lowestBidPrice :  lowestBidPrice
+           };
+
+           var cartParam = JSON.stringify(cartParamData);
+
+         $.ajax({
+               url: url,
+               type: "POST",
+               contentType: "application/json",
+               data: cartParam,
+               beforeSend: function(xhr){
+                   xhr.setRequestHeader(header, token);
+               },
+               dataType: "json",
+               cache: false,
+               success: function(result, status){
+                   alert("추가가 완료 되었습니다.");
+                   location.href='/cart';
+               },
+               error: function(jqXHR, status, error){
+                   if(jqXHR.status == '401'){
+                       alert('로그인 후 이용해주세요.');
+                       location.href='/members/login';
+                   }
+                   else{
+                       alert(jqXHR.responseText);
+                   }
+               }
+           });
+           var heartIcon = document.querySelector('.heart-icon');
+          heartIcon.classList.toggle('red');
+       }
+
 
        function buy(){
            var token = $("meta[name='_csrf']").attr("content");
@@ -245,6 +308,7 @@
                    }]
                },
                options: {
+                 responsive: true, /* 그래프가 반응형으로 조정되도록 설정 */
                    scales: {
                        x: {
                            title: {
@@ -289,7 +353,24 @@
            fetchBidData();
            setInterval(fetchBidData, 5000);
        }
+
     </script>
+</th:block>
+<th:block layout:fragment="css">
+    <style>
+    .canvas-container {
+             width: 100%; /* 부모 컨테이너의 너비를 100%로 설정 */
+                max-width: 800px; /* 최대 너비를 800px로 설정 */
+                margin: 20px auto; /* 중앙 정렬 및 여백 설정 */
+                position: relative; /* 위치를 상대적으로 설정 */
+                height: 400px; /* 높이를 고정값으로 설정 */
+    }
+    #myChart {
+                    width: 100%; /* 부모 컨테이너의 너비에 맞게 조정 */
+                height: 100%; /* 부모 컨테이너의 높이에 맞게 조정 */
+                display: block; /* 블록 요소로 설정하여 부모 요소에 맞게 확장 */
+    }
+    </style>
 </th:block>
 
 <!-- 사용자 CSS 추가 -->
@@ -331,7 +412,7 @@
                         <p class="h4">마감일</p>
                         <div class="h4" th:text="${#temporals.format(item.endDate, 'yyyy년 M월 d일 H시 m분 ')}"></div>
                         <div class="h4 text-danger text-left">
-                            <p class="h4">남은 시간:</p>
+                            <p class="h4">남은 시간</p>
                             <div id="timer"></div>
                         </div>
                     </div>
@@ -360,6 +441,9 @@
 
                 <div th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">
                     <button type="button" class="btn btn-light border border-primary btn-lg" id="bidButton" onclick="bid()">입찰하기</button>
+                    <button type="button" class="btn btn-light border border-primary btn-lg" id="addCart" onclick="addCart()">
+                        <span class="heart-icon">&#9829;</span>
+                    </button>
                 </div>
                 <div th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">
                     <button type="button" class="btn btn-danger btn-lg">품절</button>
@@ -375,9 +459,11 @@
             <p class="lead" th:text="${item.itemDetail}"></p>
         </div>
     </div>
-    <canvas id="myChart" style="width:100%; max-width:700px; margin: 20px auto; display: block;"></canvas>
-    <div th:each="itemImg : ${item.itemImgDtoList}" class="text-center">
-        <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15" width="800">
+    <div class="canvas-container">
+        <canvas id="myChart"></canvas>
+    </div>
+    <div th:each="itemImg : ${item.itemImgDtoList}" class=" repImgDiv2 text-center ">
+        <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15 " >
     </div>
 </div>
 </html>

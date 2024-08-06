@@ -110,6 +110,7 @@ function initMap() {
         function loadItems(page) {
             if (loadingData) {
             return;
+            console.log(searchQuery);
         }
 
         loadingData = true;
@@ -147,6 +148,7 @@ function initMap() {
                 container.append(newItemHtml);
             });
             loadingData = false;
+
         },
         error: function(xhr, status, error) {
             console.error("에러: ", xhr.responseText);

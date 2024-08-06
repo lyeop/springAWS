@@ -70,7 +70,7 @@
 
             $("#orderTotalPrice").text(totalPrice.toLocaleString() + '원');
         }
-
+let charts = [];
  function fetchBidData(url, ctx, index) {
     $.ajax({
         url: url,
@@ -85,7 +85,9 @@
             labels.push(data.itemNm+' 경 매 ');
             currentBidPrices.push(data.bidPrice); // 현재 입찰가 데이터 추가
             lowBidPrices.push(data.lowesBidPrice); // 최저 입찰가 데이터 추가
-
+              if (charts[index]) {
+                charts[index].destroy();
+            }
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -112,6 +114,7 @@
                     }
                 }
             });
+              charts[index] = myChart;
         },
         error: function(xhr, status, error) {
             console.error('Error fetching bid data:', error);
@@ -170,9 +173,17 @@
         }
 
           function deleteCartItem(obj){
+                var confirmation = confirm('입찰을 포기하시겠습니까?');
+                    if (!confirmation) {
+                    return;
+                   }
+           var cartItemId = obj.dataset.id;
            var currentBidPrice = parseInt($("#currentBidPrice_" + cartItemId).text().replace('원', '').trim());
-              var myBidPrice = parseInt($("#myBidPrice_" + cartItemId).text().replace('원', '').trim());
-              if (currentBidPrice == myBidPrice) {
+            var myBidPrice = parseInt($("#myBidPrice_" + cartItemId).text().replace('원', '').trim());
+
+              console.log(currentBidPrice)
+              console.log(myBidPrice)
+              if (currentBidPrice === myBidPrice) {
                  alert('최고 입찰자입니다. 입찰 포기를 할 수 없습니다.');
                  return;
                   }
@@ -207,10 +218,7 @@
         function orders(){
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
-
-
             var url = "/cart/orders";
-
             var dataList = [];
             var paramData = {};
 
@@ -550,14 +558,64 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+    .table-container {
+    width: 100%; /* 부모 컨테이너의 너비에 맞게 테이블의 너비를 설정 */
+    overflow-x: auto; /* 테이블이 너무 넓어질 경우 가로 스크롤을 추가 */
+}
+
+table {
+    width: 100%; /* 테이블의 너비를 부모 컨테이너에 맞게 설정 */
+    border-collapse: collapse; /* 테이블 셀 사이의 여백 제거 */
+}
+
+th, td {
+    padding: 8px; /* 셀 안의 여백 설정 */
+    text-align: left; /* 텍스트 정렬 설정 */
+}
+
+        @media (max-width: 768px) {
+     table {
+        display: block; /* 테이블을 블록으로 표시 */
+        width: 100%; /* 테이블의 너비를 100%로 설정 */
+    }
+    thead {
+        display: none; /* 헤더를 숨김 */
+    }
+
+   tbody, tr {
+        display: block; /* 테이블 몸체와 행을 블록으로 표시 */
+        width: 100%; /* 테이블의 너비를 100%로 설정 */
+    }
+
+    td {
+        display: block; /* 셀을 블록으로 표시 */
+        width: 100%; /* 셀의 너비를 100%로 설정 */
+        box-sizing: border-box; /* 테두리와 패딩을 포함한 너비 설정 */
+        padding-left: 50%; /* 왼쪽 여백 추가 */
+        position: relative; /* 위치를 상대적으로 설정 */
+        border: none; /* 테두리 제거 */
+    }
+    td::before {
+        content: attr(data-label); /* 데이터 라벨을 표시 */
+        position: absolute; /* 절대 위치 설정 */
+        left: 0; /* 왼쪽 정렬 */
+        width: 50%; /* 너비 설정 */
+        padding-left: 10px; /* 왼쪽 여백 추가 */
+        white-space: nowrap; /* 줄바꿈 방지 */
+        font-weight: bold; /* 굵은 글씨체 설정 */
+        top: 0; /* 상단 정렬 */
+    }
+}
     </style>
 </th:block>
 <div layout:fragment="content" class="content-mg">
+    <h2 class="mb-4">입찰 목록</h2>
     <div class="banner-image">
         <img th:src="@{/img/아이콘.png}" alt="...">
     </div>
-    <h2 class="mb-4">입찰 목록</h2>
+    <h5 class="mb-4">전체선택</h5>
     <div>
+        <div class="table-container">
         <table class="table">
             <colgroup>
                 <col width="15%">
@@ -565,9 +623,10 @@
                 <col width="15%">
             </colgroup>
             <thead>
-            <tr class="text-center">
+            <tr class="text-center inputList">
                 <th>
-                    <input type="checkbox" id="checkall" onclick="checkAll()" onchange="getOrderTotalPrice()"> 전체선택
+                    <input type="checkbox" id="checkall" onclick="checkAll()" onchange="getOrderTotalPrice()">
+
                 </th>
                 <th>상품정보</th>
                 <th>입찰현황</th>
@@ -580,7 +639,7 @@
                            onchange="getOrderTotalPrice()">
                     <input type="hidden" th:id="'hiddenItemId_' + ${cartItem.cartItemId}" th:value="${cartItem.itemId}"/>
                 </td>
-                <td class="d-flex">
+                <td class="d-flex flex-column flex-md-row">
                     <div class="repImgDiv align-self-center">
                         <img th:src="${cartItem.imgUrl}" class="rounded repImg" th:alt="${cartItem.itemNm}">
                     </div>
@@ -599,20 +658,19 @@
                             <div th:id="'timer_' + ${cartItem.cartItemId}" class="timer" th:data-end-date="${cartItem.endDate}"></div>
                         </div>
                         <div class="fs18 font-weight-light mb-2">
-                            <div class="input-group justify-content-center">
+                            <div class="input-group inputList justify-content-center flex-nowrap">
                                 <input type="number" name="bidPrice" th:id="'lowBidPrice_' + ${cartItem.cartItemId}"
                                        th:value="${cartItem.lowestBidPrice}" th:min="${cartItem.lowestBidPrice}" step="1000"
                                        class="form-control mr-2" placeholder="입찰가를 입력하세요" onchange="changeCount(this)"  style="margin-left: 0px;">
-                                <button type="button" class="btn btn-primary"
+                                <button type="button" class="btn btn-outline-primary btn-custom"
                                         th:id="'bidButton_' + ${cartItem.cartItemId}"
                                         th:data-id="${cartItem.cartItemId}"
                                         th:onclick="bid(this)">입찰하기</button>
+                                <button type="button" class="btn btn-outline-danger btn-custom" aria-label="Close"
+                                        th:data-id="${cartItem.cartItemId}" onclick="deleteCartItem(this)">
+                                    <span aria-hidden="true"></span>삭제
+                                </button>
                             </div>
-                        </div>
-                        <div class="fs18 font-weight-light">
-                            <button type="button" class="close" aria-label="Close">
-                                <span aria-hidden="true" th:data-id="${cartItem.cartItemId}" onclick="deleteCartItem(this)">&times;</span>
-                            </button>
                         </div>
                     </div>
                 </td>
@@ -624,6 +682,7 @@
             </tr>
             </tbody>
         </table>
+
         <h2 class="text-center">
             총 주문 금액 : <span id="orderTotalPrice" class="text-danger">0원</span>
         </h2>
@@ -631,5 +690,6 @@
             <button type="button" class="btn btn-primary btn-lg" onclick="orders()">주문하기</button>
         </div>
     </div>
+</div>
 </div>
 </html>

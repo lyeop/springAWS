@@ -17,10 +17,10 @@
            var isAdmin = [[${selectedNotice}]];
            console.log(isAdmin);
            if (isAdmin != 'ADMIN') {
+
                alert('권한이 없습니다.');
                return false;
            } else {
-               alert('권한이 없습니다. 문의사항 작성으로 이동');
                document.getElementById("writeBtn").submit();
                return true;
            }

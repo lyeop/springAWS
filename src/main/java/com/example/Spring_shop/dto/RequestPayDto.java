@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RequestPayDto {
@@ -19,6 +21,8 @@ public class RequestPayDto {
     private Member.Address buyerAddress;
     private String orderUid;
 
+
+
     @Builder
     public RequestPayDto(String itemNm, String buyerName, int orderPrice, String buyerEmail, Member.Address buyerAddress, String orderUid) {
 
@@ -29,5 +33,6 @@ public class RequestPayDto {
         this.buyerEmail = buyerEmail;
         this.buyerAddress = buyerAddress;
         this.orderUid = orderUid;
+
     }
 }

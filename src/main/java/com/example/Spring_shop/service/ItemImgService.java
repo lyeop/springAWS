@@ -45,13 +45,14 @@ public class ItemImgService {
     public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception{
         if (!itemImgFile.isEmpty()){ // 상품의 이미지를 수정한 경우 상품 이미지 업데이트
             ItemImg savedItemImg = itemImgRepository.findById(itemImgId).orElseThrow(EntityNotFoundException::new); // 기존 엔티티 조회
+            System.out.println("상품아이디 +++++++++++"+itemImgId);
             //기존에 등록된 상품 이미지 파일이 있는 경우 파일 삭제
             if (!StringUtils.isEmpty(savedItemImg.getImgName())){
                 fileService.deleteFile(itemImgLocation + "/" + savedItemImg.getImgName());
             }
             String oriImgName = itemImgFile.getOriginalFilename();
             String imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes()); // 파일 업로드
-            String imgUrl = "/images/item" + imgName;
+            String imgUrl = "/images/item/" + imgName;
             // 변경된 상품 이미지 정보를 세팅
             // 상품 등록을 하는 경우에는 itemImgRepository.save() 로직을 호출 하지만
             // 호출을 하지 않았습니다.
@@ -60,6 +61,7 @@ public class ItemImgService {
             // 트랜잭션이 끝날 때 update 쿼리가 실행된다.
             // 영속성 상태여야함 사용가능
             savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
+
         }
     }
 }

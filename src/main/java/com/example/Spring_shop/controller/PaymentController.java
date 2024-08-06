@@ -41,6 +41,7 @@ public class PaymentController {
         System.out.println(request.getOrderUid());
         //결제 완료시주문번호, 고유번호 받아서 리퀘스트로 처리하고 완료시 ajax로 페이지 이동
 
+
         IamportResponse<Payment> iamportResponse = paymentService.paymentByCallback(request);
 
         log.info("결제 응답={}", iamportResponse.getResponse().toString());

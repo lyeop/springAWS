@@ -1,6 +1,7 @@
 package com.example.Spring_shop.repository;
 
 import com.example.Spring_shop.constant.PaymentStatus;
+import com.example.Spring_shop.dto.CartOrderDto;
 import com.example.Spring_shop.dto.PaymentCallbackRequest;
 
 import com.example.Spring_shop.dto.RequestPayDto;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,6 +41,7 @@ public class PaymentServiceImpl implements PaymentService{
         Member.Address address1 = new Member.Address(order.getMember().getAddress().getZipcode(),
                 order.getMember().getAddress().getStreetAdr(),order.getMember().getAddress().getDetailAdr());
         System.out.println(" 오더 아이템 이름" + order.getItemNmList());
+
 
         return RequestPayDto.builder()
                 .buyerName(order.getMember().getName())
