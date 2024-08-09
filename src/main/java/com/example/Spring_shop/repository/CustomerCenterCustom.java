@@ -9,4 +9,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface CustomerCenterCustom {
     Page<CustomerCenterPostDto> getAllpage(ItemSearchDto itemSearchDto, Pageable pageable);
+
+    Page<CustomerCenterPostDto> getMyPage(ItemSearchDto itemSearchDto, Pageable pageable);
 }

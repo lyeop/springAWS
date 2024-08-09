@@ -34,9 +34,9 @@ public class CustomerCenterCustomImpl implements CustomerCenterCustom{
 
         QueryResults<CustomerCenterPostDto> results = queryFactory.select(new QCustomerCenterPostDto(
                         customerCenterPost.id,
-                        customerCenterPost.writer,
                         customerCenterPost.title,
-                        customerCenterPost.content
+                        customerCenterPost.content,
+                        customerCenterPost.views
                 ))
                 .from(customerCenterPost)
                 .where(postNotice(itemSearchDto.getNotice()))
@@ -52,6 +52,53 @@ public class CustomerCenterCustomImpl implements CustomerCenterCustom{
     }
     private BooleanExpression postNotice(Notice notice) {
         return notice == null ? null : QCustomerCenterPost.customerCenterPost.notice.eq(notice);
+    }
+    @Override
+    public Page<CustomerCenterPostDto> getMyPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+        QCustomerCenterPost customerCenterPost = QCustomerCenterPost.customerCenterPost;
+        QMember member = QMember.member;
+
+        QueryResults<CustomerCenterPostDto> results = queryFactory
+                .select(new QCustomerCenterPostDto(
+                        customerCenterPost.id,
+                        customerCenterPost.title,
+                        customerCenterPost.content,
+                        customerCenterPost.views
+                ))
+                .from(customerCenterPost)
+                .leftJoin(customerCenterPost.member, member) // 게시물과 멤버를 조인
+                .where(buildWhereClause(itemSearchDto))
+                .orderBy(customerCenterPost.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        List<CustomerCenterPostDto> content = results.getResults();
+        long total = results.getTotal();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression buildWhereClause(ItemSearchDto itemSearchDto) {
+        QCustomerCenterPost customerCenterPost = QCustomerCenterPost.customerCenterPost;
+        QMember member = QMember.member;
+
+        BooleanExpression whereClause = null;
+
+        // 이메일 필터링
+        if (itemSearchDto.getAuthorEmail() != null) {
+            whereClause = member.email.eq(itemSearchDto.getAuthorEmail());
+        }
+
+        // Notice 필터링
+        if (itemSearchDto.getNotice() != null) {
+            if (whereClause == null) {
+                whereClause = customerCenterPost.notice.eq(itemSearchDto.getNotice());
+            } else {
+                whereClause = whereClause.and(customerCenterPost.notice.eq(itemSearchDto.getNotice()));
+            }
+        }
+        return whereClause;
     }
 }
 

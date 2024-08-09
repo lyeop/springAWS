@@ -86,5 +86,9 @@ public class MemberService implements UserDetailsService {
             System.out.println("에러 코드: " + e.getCode());
         }
     }
+    public void deleteMember(String email){
+
+        memberRepository.deleteByEmail(email);
+    }
 
 }

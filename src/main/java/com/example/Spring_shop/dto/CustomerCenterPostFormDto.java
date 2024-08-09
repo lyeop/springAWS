@@ -20,14 +20,13 @@ public class CustomerCenterPostFormDto {
 
     private Long id;
 
-    @NotBlank(message = "작성자는 필수 입력 값 입니다.")
-    private String writer;
-
     @NotNull(message = "제목은 필수 입력 값 입니다.")
     private String title;
 
     @NotBlank(message = "내용은 필수 입력 값 입니다.")
     private String content;
+
+    private int views;
 
     private Long memberId; // 회원 ID 추가
 
@@ -36,6 +35,7 @@ public class CustomerCenterPostFormDto {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     //------------------------------------------------------------------------//
 

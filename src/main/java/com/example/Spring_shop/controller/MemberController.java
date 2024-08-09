@@ -1,25 +1,38 @@
 package com.example.Spring_shop.controller;
 
+import com.example.Spring_shop.constant.Notice;
 import com.example.Spring_shop.dto.*;
 import com.example.Spring_shop.entity.Member;
+import com.example.Spring_shop.entity.SecessionReason;
 import com.example.Spring_shop.repository.MemberRepository;
+import com.example.Spring_shop.service.CustomerCenterService;
 import com.example.Spring_shop.service.MailService;
 import com.example.Spring_shop.service.MemberService;
+import com.example.Spring_shop.service.SecessionReasonService;
+import com.example.Spring_shop.util.RoleToNoticeConverter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @RequestMapping("/members")
@@ -31,6 +44,8 @@ public class MemberController {
     private final MailService mailService;
     private final HttpSession httpSession;
     private final MemberRepository memberRepository;
+    private final SecessionReasonService secessionReasonService;
+    private final CustomerCenterService customerCenterService;
     private final Map<String, String> phoneVerificationCodes = new HashMap<>();
 
     String confirm = "";
@@ -314,5 +329,68 @@ public class MemberController {
         } else {
             return ResponseEntity.ok(smsChk.getVerificationCode());
         }
+    }
+
+    //-------------------------------------------------탈퇴 -----------------------------------------------
+    @GetMapping (value = "/deleteMember")
+    public String deleteMember (Model model,Principal principal){
+
+        String email = getEmailFromPrincipalOrSession(principal);
+
+        SecessionReasonDto secessionReasonDto = new SecessionReasonDto();
+        secessionReasonDto.setEmail(email);
+        System.out.println(email);
+
+        model.addAttribute("secessionReasonDto", secessionReasonDto);
+
+        return "/member/memberDelete";
+    }
+
+    @PostMapping(value = "/deleteMember2")
+    public String deleteMember2(SecessionReasonDto secessionReasonDto, HttpServletRequest request, HttpServletResponse response,
+                                Authentication authentication, RedirectAttributes redirectAttributes){
+
+        SecessionReason secessionReason = SecessionReason.createSecessionReason(secessionReasonDto);
+        secessionReasonService.saveSecessionReason(secessionReason);
+
+        memberService.deleteMember(secessionReasonDto.getEmail());
+
+        // 로그아웃 처리
+        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+        logoutHandler.logout(request, response, authentication);
+
+
+        // 메인 페이지로 리다이렉트
+        return "redirect:/";
+    }
+
+    //-----------------------------나의 문의 내역 찾기 --------------------------------
+    @GetMapping(value = "/myPost")
+    public String memberMyPost(Optional<Integer> page, Model model, Authentication authentication, Principal principal) {
+
+        // 현재 로그인한 사용자의 이메일을 가져옵니다.
+        String currentUsername = getEmailFromPrincipalOrSession(principal);
+        Member member = memberRepository.findByEmail(currentUsername);
+        Notice notice = RoleToNoticeConverter.convertRoleToNotice(member.getRole());
+
+        // 데이터베이스에서 사용자가 작성한 게시물만 가져오도록 합니다.
+        ItemSearchDto itemSearchDto = new ItemSearchDto();
+        itemSearchDto.setNotice(notice);
+        itemSearchDto.setAuthorEmail(currentUsername); // 현재 사용자의 이메일을 검색 조건으로 추가
+
+        System.out.println(notice);
+        System.out.println(currentUsername);
+
+        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 5);
+        Page<CustomerCenterPostDto> posts = customerCenterService.getMyPost(itemSearchDto, pageable);
+
+        // 결과를 모델에 추가
+        model.addAttribute("dtos", posts);
+        model.addAttribute("itemSearchDto", itemSearchDto);
+        model.addAttribute("maxPage", 5);
+        model.addAttribute("selectedNotice", notice);
+        model.addAttribute("NTC", notice);
+
+        return "/customerCenter/customerMain";
     }
 }

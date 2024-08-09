@@ -38,7 +38,6 @@ public class CustomerCenterService {
 
         // 게시글 생성
         CustomerCenterPost post = new CustomerCenterPost();
-        post.setWriter(customerCenterPostFormDto.getWriter());
         post.setTitle(customerCenterPostFormDto.getTitle());
         post.setContent(customerCenterPostFormDto.getContent());
         post.setNotice(customerCenterPostFormDto.getNotice());
@@ -55,8 +54,15 @@ public class CustomerCenterService {
 
     // 게시물 ID로 조회
     public CustomerCenterPost getCustomerCenterPostById(Long id) {
-        return customerCenterRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 ID에 대한 게시물을 찾을 수 없습니다: " + id));
+        CustomerCenterPost post = customerCenterRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // 조회수 증가
+        post.setViews(post.getViews()+1);
+        // 업데이트된 게시글 저장
+        customerCenterRepository.save(post);
+
+        return post;
     }
     // 게시물 삭제 메소드
     public void deleteCustomerCenterPostById(Long id) {
@@ -83,6 +89,9 @@ public class CustomerCenterService {
         return customerCenterPostFormDto;
 
 
+    }
+    public Page<CustomerCenterPostDto> getMyPost(ItemSearchDto itemSearchDto, Pageable pageable) {
+        return customerCenterCustom.getMyPage(itemSearchDto, pageable);
     }
 }
 

@@ -77,7 +77,6 @@ public class CustomerCenterController {
         if (bindingResult.hasErrors()) {
             return "/customerCenter/customerForm";//다시 작성화면으로 돌려보냄
         }
-
         //유효성 검사
         try {
             //데이터베이스에 저장
@@ -91,7 +90,6 @@ public class CustomerCenterController {
                 customerCenterPostFormDto.setNotice(Notice.USER);
                 //작성자가 유저면 문의사항으로 작성할수 있게 바꿉니다.
             }
-
             customerCenterService.CreateCustomerCenterPost(customerCenterPostFormDto, email);
             //가져온 양식에 받은 데이터를 로그인한 사람의 정보를 담고 글을 작성해서 db에 넣어줍니다.
 
@@ -99,10 +97,13 @@ public class CustomerCenterController {
             model.addAttribute("errorMessage", e.getMessage());
             return "/customerCenter/customerForm";
         }
+
         ItemSearchDto itemSearchDto = new ItemSearchDto();
         itemSearchDto.setNotice(Notice.ADMIN);
         Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 5);
+
         Page<CustomerCenterPostDto> posts = customerCenterService.getCustomerPage(itemSearchDto,pageable);
+
         model.addAttribute("selectedNotice", Notice.ADMIN);
         model.addAttribute("itemSearchDto", itemSearchDto);
         model.addAttribute("maxPage", 5);

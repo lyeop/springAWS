@@ -21,5 +21,7 @@ public class ItemSearchDto {
 
     private Notice notice;
 
+    private String AuthorEmail;
+
 
 }

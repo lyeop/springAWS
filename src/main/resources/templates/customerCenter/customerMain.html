@@ -17,10 +17,10 @@
            var isAdmin = [[${selectedNotice}]];
            console.log(isAdmin);
            if (isAdmin != 'ADMIN') {
-
                alert('권한이 없습니다.');
                return false;
            } else {
+               alert('권한이 없습니다. 문의사항 작성으로 이동');
                document.getElementById("writeBtn").submit();
                return true;
            }
@@ -83,6 +83,12 @@
         .btn-primary:hover{
             background-color:#9ccc65 !important;
         }
+        body{
+            position: relative;
+            background-image: url('/img/배경1.png');
+            background-size: cover; /* 이미지를 화면에 꽉 채우도록 설정 */
+            background-position: center; /* 이미지를 센터 정렬 */
+        }
     </style>
 </th:block>
 <body>
@@ -107,18 +113,18 @@
                             <thead class="thead-light">
                             <tr>
                                 <th scope="col">번호</th>
-                                <th scope="col">작성자</th>
                                 <th scope="col">제목</th>
                                 <th scope="col">조회</th>
+                                <th scope="col">조회수</th>
                             </tr>
                             </thead>
                             <tbody>
                             <!-- dtos 변수를 반복하여 테이블 행을 생성합니다. -->
                             <tr th:each="dto, iterStat : ${dtos.getContent()}">
                                 <td th:text="${dtos.getContent().size() - iterStat.index}"></td>
-                                <td th:text="${dto.writer}"></td>
                                 <td th:text="${dto.title}"></td>
                                 <td><a th:href="@{/view/{id}(id=${dto.id})}" class="btn btn-primary btn-sm">조회</a></td>
+                                <td th:text="${dto.views}"></td>
                             </tr>
                             </tbody>
                         </table>

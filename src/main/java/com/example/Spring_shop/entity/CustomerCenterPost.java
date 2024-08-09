@@ -40,6 +40,9 @@ public class CustomerCenterPost {
     @Enumerated(EnumType.STRING)
     private Notice notice;
 
+    @Column(name = "views ")
+    private int views;
+
     /*
     public boolean canDelete(Authentication authentication) {
         // 현재 로그인한 사용자의 정보 가져오기
@@ -57,7 +60,7 @@ public class CustomerCenterPost {
     }
 
     public void updateCustomerCenterPost(CustomerCenterPostFormDto customerCenterPostFormDto){
-        this.writer = customerCenterPostFormDto.getWriter();
+
         this.title = customerCenterPostFormDto.getTitle();
         this.content = customerCenterPostFormDto.getContent();
     }
@@ -69,16 +72,5 @@ public class CustomerCenterPost {
         this.content = content;
     }
 
-    public static CustomerCenterPost createCustomerCenterPost(CustomerCenterPostFormDto customerCenterPostFormDto){
 
-        CustomerCenterPost customerCenterPost = new CustomerCenterPost(customerCenterPostFormDto.getWriter(),
-                customerCenterPostFormDto.getTitle(),
-                customerCenterPostFormDto.getContent());
-
-        customerCenterPost.setWriter(customerCenterPostFormDto.getWriter());
-        customerCenterPost.setTitle(customerCenterPostFormDto.getTitle());
-        customerCenterPost.setContent(customerCenterPostFormDto.getContent());
-
-        return customerCenterPost;
-    }
 }
