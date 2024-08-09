@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function confirmWithdrawal() {
+            if (confirm("정말 탈퇴 하시겠습니까? 확인을 누르면 탈퇴 후 메인 페이지로 이동합니다.")) {
+                var form = document.getElementById('withdrawalForm');
+                form.action = '/members/deleteMember2'; // 탈퇴 처리 URL로 변경
+                form.submit();
+            }
+        }
+    </script>
+</th:block>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            color: black; /* 검은색으로 제목 색상 변경 */
+        }
+
+        .auction-icon {
+            display: block;
+            margin: auto; /* 이미지를 가운데 정렬 */
+            width: 200px; /* 이미지의 너비를 2배로 설정 */
+            height: auto; /* 이미지의 높이 자동 조정 */
+            margin-bottom: 20px; /* 아래 여백 추가 */
+        }
+
+        .form-select, .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .input-group-prepend .input-group-text,
+        .input-group-append .input-group-text,
+        .input-group .image.input-group-text {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .input-group-append .input-group-text {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .btn-primary2 {
+            background-color: #9ccc65; /* 연두색 *
+            border: none;
+            width: 80px; /* 너비 설정 */
+            height: 36px; /* 높이 설정 */
+            font-size: 15px; /* 폰트 크기 */
+            color: #fff; /* 텍스트 색상을 흰색으로 설정 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary2:hover {
+            background-color: #a9a9a9; /* 마우스 호버 시 변경되는 색상 */
+        }
+
+        .fieldError {
+            color: #bd2130;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .img-div {
+            margin-bottom: 10px;
+        }
+
+        .input-group .imageFile.form-control {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .input-group input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .row.mb-4 {
+            margin-bottom: 20px;
+        }
+
+        textarea.form-control {
+            resize: none;
+        }
+    </style>
+</head>
+<div class="container" layout:fragment="content">
+    <div class="header">
+        <h2>회원 탈퇴</h2>
+        <img th:src="@{/img/아이콘.png}" alt="경매 아이콘" class="auction-icon"> <!-- 경매 아이콘 추가 -->
+    </div>
+    <form th:id="withdrawalForm" action="/members/deleteMember2" method="post" role="form" th:object="${secessionReasonDto}">
+        <input type = "hidden" th:field="*{email}" name="email">
+        <div class="form-group">
+            <label for="reason">탈퇴 사유</label>
+            <select id="reason" th:field="*{secessionReason}" class="form-select" style="font-weight:bold; color:blue;">
+                <option value="REASON1">더 이상 사용하지 않습니다.</option>
+                <option value="REASON2">재가입을 할 예정입니다.</option>
+                <option value="REASON3">사이트가 마음에 들지 않습니다.</option>
+                <option value="REASON4">그 외 이유</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label th:for="detailReason" style="color:#000;">상세 이유</label>
+            <input th:field="*{detailReason}" type="detailReason" name="detailReason" class="form-control">
+        </div>
+        <div style="text-align: center">
+            <button type="button" class="btn btn-primary2" onclick="confirmWithdrawal()">회원 탈퇴</button>
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+        </div>
+    </form>
+</div>
+</html>
