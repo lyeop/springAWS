@@ -4,17 +4,22 @@ import com.example.Spring_shop.constant.Role;
 import com.example.Spring_shop.dto.MemberFormDto;
 import com.example.Spring_shop.dto.MemberPasswordDto;
 import com.example.Spring_shop.dto.MemberUpdateFormDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity // 나 엔티티야
 @Table(name = "member") // 테이블 명
 @Getter
 @Setter
-@ToString
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Member extends BaseEntity{
 
     //기본키 컬럼명 = member_id AI-> 데이터 저장시 1씩 증가
@@ -33,6 +38,15 @@ public class Member extends BaseEntity{
     private Address address; // 주소 정보
     private String provider;
     private String picture;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setMember(this);
+    }
 
 
     private String tel;
@@ -81,7 +95,6 @@ public class Member extends BaseEntity{
         this.password = Newpassword;
     }
 
-
     public Member(String name, String email, String picture,Role role,String provider, String tel, Address address) {
 
         address = new Member.Address("없음","없음","없음");
@@ -105,7 +118,6 @@ public class Member extends BaseEntity{
     public static Member createMember(MemberFormDto memberFormDto,
                                       PasswordEncoder passwordEncoder){
         Member member = new Member();
-
         Member.Address address = new Member.Address(memberFormDto.getZipcode(), memberFormDto.getStreetAdr(),
                 memberFormDto.getDetailAdr());
 
@@ -123,4 +135,19 @@ public class Member extends BaseEntity{
     //데이터베이스 문자 그대로 -> USER, ADMIN
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", picture='" + picture + '\'' +
+                ", role=" + role +
+                ", provider='" + provider + '\'' +
+                ", tel='" + tel + '\'' +
+                ", address=" + (address != null ? address.toString() : "none") +
+                '}';
+    }
 }

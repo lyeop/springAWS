@@ -2,15 +2,15 @@ package com.example.Spring_shop.entity;
 
 
 import com.example.Spring_shop.constant.Notice;
-import com.example.Spring_shop.constant.Role;
 import com.example.Spring_shop.dto.CustomerCenterPostFormDto;
-import com.example.Spring_shop.dto.MemberFormDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@ToString
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name="customerCenterPost")
 public class CustomerCenterPost {
 
@@ -27,8 +27,8 @@ public class CustomerCenterPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String writer;
     private String title;
+
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,34 +43,48 @@ public class CustomerCenterPost {
     @Column(name = "views ")
     private int views;
 
-    /*
-    public boolean canDelete(Authentication authentication) {
-        // 현재 로그인한 사용자의 정보 가져오기
-        String currentUsername = authentication.getName();
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc") // 댓글 정렬
+    @JsonManagedReference
+    private List<Comment> comments;
 
-        // 게시글의 작성자와 현재 사용자의 이름 비교
-        return this.member != null && this.member.getEmail().equals(currentUsername);
+    @Builder
+    public CustomerCenterPost (String title, String content,String comment){
+        this.title=title;
+        this.content=content;
     }
-
-     */
-
 
     public CustomerCenterPost() {
         // 필드 초기화 또는 아무 작업도 하지 않아도 됩니다.
     }
 
     public void updateCustomerCenterPost(CustomerCenterPostFormDto customerCenterPostFormDto){
-
         this.title = customerCenterPostFormDto.getTitle();
         this.content = customerCenterPostFormDto.getContent();
     }
 
-
-    public CustomerCenterPost(String writer, String title, String content) {
-        this.writer = writer;
+    public CustomerCenterPost(String title, String content) {
         this.title = title;
         this.content = content;
     }
 
+    public static CustomerCenterPost createCustomerCenterPost(CustomerCenterPostFormDto customerCenterPostFormDto){
 
+        CustomerCenterPost customerCenterPost = new CustomerCenterPost(customerCenterPostFormDto.getTitle(),
+                customerCenterPostFormDto.getContent());
+
+        customerCenterPost.setTitle(customerCenterPostFormDto.getTitle());
+        customerCenterPost.setContent(customerCenterPostFormDto.getContent());
+
+        return customerCenterPost;
+    }
+    @Override
+    public String toString() {
+        return "CustomerCenterPost{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", commentsCount=" + (comments != null ? comments.size() : 0) +
+                '}';
+    }
 }

@@ -7,17 +7,68 @@
     <meta charset="UTF-8">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
 <th:block layout:fragment="script">
     <script th:inline="javascript">
+
+
+        $(document).ready(function() {
+
+         var csrfToken = $("meta[name='_csrf']").attr("content");
+         var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+        $('#commentForm').submit(function(event) {
+        event.preventDefault(); // 기본 폼 제출 방지
+
+
+        var postId = [[${post.id}]];
+        var memberId = [[${member.id}]];
+        var comment = document.getElementById('commentText').value;
+
+        var addCommentRequestData = {
+            postId: postId,
+            memberId: memberId,
+            comment: comment
+     };
+
+    var addCommentRequest = JSON.stringify(addCommentRequestData);
+
+        $.ajax({
+            url: '/comments/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data:addCommentRequest,
+            headers: {
+                 [csrfHeader]: csrfToken // CSRF 토큰을 헤더에 추가
+             },
+            success: function(response) {
+                var newCommentHtml = `
+                         <div class="comment">
+                             <p class="text">${response.comment}</p>
+                         </div>
+                     `;
+                     $('#commentList').append(newCommentHtml);
+                     $('#commentText').val(''); // 입력 필드 비우기
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+ });
+
+
         var postId = [[${post.member.id}]]; // 포스트 작성자의 member.id (post에 조인된 member.id)
         var currentUserId = [[${member.id}]]; // 현재 로그인 된 member.id임
         var role = [[${member.role}]]; // 로그인 된 role
 
+
         function confirmDelete() {
             console.log(role);
+
             if(role == 'ADMIN'){
                 if (confirm("정말로 삭제하시겠습니까?")) {
                     document.getElementById("deleteForm").submit(); // 삭제 실행
@@ -45,59 +96,130 @@
 
 <th:block layout:fragment="css">
     <style>
+        #commentForm {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        #commentForm textarea {
+            resize: vertical; /* 세로 방향으로만 크기 조절 가능 */
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        #commentForm button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #commentForm button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 댓글 리스트 스타일 */
+        #commentList {
+            margin-top: 20px;
+        }
+
+        #commentList .comment {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        #commentList .comment .author {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        #commentList .comment .text {
+            color: #666;
+            line-height: 1.6;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
+            position: relative;
+            background-image: url('/img/배경1.png');
+            background-size: cover; /* 이미지를 화면에 꽉 채우도록 설정 */
+            background-position: center; /* 이미지를 센터 정렬 */
         }
+
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+
         .post-detail {
             margin-bottom: 20px;
         }
+
         .post-detail h2 {
-            font-size: 32px; /* 제목 크기 */
-            margin-bottom: 20px; /* 제목과 내용 간격 */
-            color: #007bff; /* 제목 색상 */
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
         }
+
         .post-detail p {
             font-size: 16px;
             line-height: 1.6;
-            color: #555;
+            color: #666;
             margin-bottom: 15px;
-            text-align: left; /* 내용을 왼쪽 정렬 */
+            text-align: left;
         }
+
         .post-detail p .author {
             font-weight: bold;
             text-decoration-color: #000;
         }
+
         .post-detail p .content {
             text-decoration: underline;
             text-decoration-color: #000;
         }
+
         .post-detail hr {
             margin: 20px 0;
             border-top: 1px solid #ddd;
         }
+
         .post-detail a {
             color: #007bff;
             text-decoration: none;
             cursor: pointer;
         }
+
         .post-detail a:hover {
             text-decoration: underline;
         }
+
         .post-actions {
             margin-top: 10px;
             text-align: right;
         }
+
         .post-actions button {
             padding: 8px 16px;
             font-size: 14px;
@@ -108,15 +230,19 @@
             margin-left: 10px;
             transition: background-color 0.3s ease;
         }
+
         .post-actions button.delete-btn {
-            background-color: #e74c3c; /* 삭제 버튼 빨간색 */
+            background-color: #dc3545; /* 삭제 버튼 빨간색 */
         }
+
         .post-actions button.update-btn {
-            background-color: #2ecc71; /* 수정 버튼 초록색 */
+            background-color: #28a745; /* 수정 버튼 초록색 */
         }
+
         .post-actions button:hover {
             opacity: 0.8;
         }
+
         .go-back-link {
             float: right;
             color: #007bff;
@@ -132,7 +258,6 @@
     <div class="post-detail">
         <input type="hidden" th:value="${member.id}">
         <h2 th:text="${post.title}">제목</h2>
-        <p>작성자: <span class="author" th:text="${post.writer}">작성자</span></p>
         <hr>
         <p class="content" th:text="${post.content}">내용</p>
         <hr>
@@ -145,6 +270,16 @@
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="button" class="update-btn" onclick="confirmUpdate()">수정</button>
             </form>
+            <form th:if="${member.role == T(com.example.Spring_shop.constant.Role).ADMIN}" th:id="commentForm">
+                <textarea id="commentText" required></textarea>
+                <button type="submit">댓글 달기</button>
+            </form>
+        </div>
+        <div id="commentList">
+            <!-- 댓글 리스트가 여기에 추가됩니다. -->
+            <div th:each="comment : ${comments}" class="comment">
+                <p class="text" th:text="${comment.comment}"></p>
+            </div>
         </div>
         <a href="/customerCenter/ADMIN" class="go-back-link">목록으로 돌아가기</a>
     </div>

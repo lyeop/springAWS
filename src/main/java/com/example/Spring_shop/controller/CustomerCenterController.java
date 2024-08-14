@@ -4,11 +4,13 @@ package com.example.Spring_shop.controller;
 import com.example.Spring_shop.constant.Notice;
 import com.example.Spring_shop.constant.Role;
 import com.example.Spring_shop.dto.*;
+import com.example.Spring_shop.entity.Comment;
 import com.example.Spring_shop.entity.CustomerCenterPost;
 import com.example.Spring_shop.entity.Item;
 import com.example.Spring_shop.entity.Member;
 import com.example.Spring_shop.repository.CustomerCenterRepository;
 import com.example.Spring_shop.repository.MemberRepository;
+import com.example.Spring_shop.service.CommentService;
 import com.example.Spring_shop.service.CustomerCenterService;
 import com.example.Spring_shop.service.ItemService;
 import jakarta.servlet.http.HttpSession;
@@ -45,6 +47,8 @@ public class CustomerCenterController {
     private MemberRepository memberRepository;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private CommentService commentService;
 
     private final HttpSession httpSession;
 
@@ -121,13 +125,16 @@ public class CustomerCenterController {
         // id를 이용하여 글 상세 정보를 조회합니다.
 
         CustomerCenterPost post = customerCenterService.getCustomerCenterPostById(id);
-
+        List<Comment> comments = commentService.getCommentsByPostId(id);
         String email = getEmailFromPrincipalOrSession(principal);
         //현재 로그인 된 멤버
         Member member = memberRepository.findByEmail(email);
+
+        System.out.println(member.getRole());
         // 모델에 글 정보를 추가합니다.
         model.addAttribute("post", post);
         model.addAttribute("member", member);
+        model.addAttribute("comments", comments);
         //세션을 통해 로그인한사람 확인하고 조회할때 로그인한사람, 게시글정보를 봅니다.
 
         return "/customerCenter/customerPostView"; // 상세 정보를 보여줄 뷰 페이지로 이동합니다.
