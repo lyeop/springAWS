@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -25,9 +26,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests(auth -> auth
                 // CSS, JS, 이미지, 파비콘, 오류 페이지에 대한 요청은 모두 허용합니다.
-                .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico", "/error", "/item/**","/customerCenter/**","/item/items/**","/postcode/**", "/slick/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico", "/error", "/item/**"
+                        ,"/customerCenter/**","/item/items/**","/postcode/**", "/slick/**").permitAll()
                 // 루트 페이지, 회원 관련 페이지, 아이템 페이지, 이미지 페이지에 대한 요청은 모두 허용합니다.
-                .requestMatchers("/", "/members/**", "/item/**", "/images/**", "/item/items/**", "/customerCenter/**","/api/**", "/payment/**","/postcode/**", "/slick/**").permitAll()
+                .requestMatchers("/", "/members/**", "/item/**", "/images/**", "/item/items/**", "/customerCenter/**",
+                        "/api/**", "/payment/**","/postcode/**", "/slick/**","/listItem","/recentViews").permitAll()
                 // 관리자 페이지에 대한 요청은 ADMIN 역할을 가진 사용자만 허용합니다.
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/thymeleaf/**","/thymeleaf/item/items/**").permitAll()
@@ -49,6 +52,8 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/")
                 .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                         .userService(customOAuth2UserService))
+        ) .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         );
 
         http.exceptionHandling(exception -> exception

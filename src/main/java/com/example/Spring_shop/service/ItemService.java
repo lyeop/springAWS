@@ -85,6 +85,10 @@ public class ItemService {
     public List<Item> findByItemValue(ItemValue itemValue) {
         return itemRepository.findByItemValue(itemValue);
     }
+    @Transactional(readOnly = true)
+    public Item findByItem(Long id){
+        return itemRepository.findById(id).orElseThrow();
+    }
     @Transactional(readOnly = true) // 쿼리문 실행 읽기만 한다.
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable){
         return itemRepository.getAdminItemPage(itemSearchDto, pageable);

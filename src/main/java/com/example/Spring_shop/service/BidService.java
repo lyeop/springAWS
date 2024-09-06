@@ -1,10 +1,8 @@
 package com.example.Spring_shop.service;
 
 import com.example.Spring_shop.dto.BidRequest;
-import com.example.Spring_shop.entity.Bid;
 
 import com.example.Spring_shop.entity.Item;
-import com.example.Spring_shop.repository.BidRepository;
 
 import com.example.Spring_shop.repository.ItemRepository;
 import jakarta.persistence.EntityExistsException;
@@ -18,10 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class BidService {
-
-    private final BidRepository bidRepository;
-
-
 
     private final ItemRepository itemRepository;
 

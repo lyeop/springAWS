@@ -3,6 +3,8 @@ package com.example.Spring_shop.controller;
 import com.example.Spring_shop.dto.BidRequest;
 import com.example.Spring_shop.dto.SessionUser;
 import com.example.Spring_shop.dto.BidData;
+import com.example.Spring_shop.entity.Item;
+import com.example.Spring_shop.repository.ItemRepository;
 import com.example.Spring_shop.service.BidService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class BidController {
     private final BidService bidService; // 비즈니스 로직을 처리할 서비스 클래스
 
     private final HttpSession httpSession;
+    private final ItemRepository itemRepository;
 
 
     @GetMapping(value = {"/fetchBidData/{itemId}","/cart/fetchBidData","/item/**"})
@@ -88,5 +91,9 @@ public class BidController {
     //장바구니 그래프 > 다수 > 최고입찰가, 최근입찰가 , 상품이름 itemId 조회하고 List<BidData> 리스트로 만들어서
     //ajax 값 조회해서 각자상품 업데이트
 
+    private boolean isUserLoggedIn() {
+        // 로그인 상태를 확인하는 로직
+        return true; // 예시로 true 반환, 실제로는 세션이나 인증 토큰을 확인
+    }
 
 }

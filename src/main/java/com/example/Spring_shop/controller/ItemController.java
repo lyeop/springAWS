@@ -4,15 +4,22 @@ import com.example.Spring_shop.constant.ItemValue;
 import com.example.Spring_shop.dto.ItemFormDto;
 import com.example.Spring_shop.dto.ItemSearchDto;
 import com.example.Spring_shop.dto.MainItemDto;
+import com.example.Spring_shop.dto.RecentProduct;
 import com.example.Spring_shop.entity.Item;
+import com.example.Spring_shop.repository.ItemRepository;
 import com.example.Spring_shop.service.BidService;
+import com.example.Spring_shop.service.ItemImgService;
 import com.example.Spring_shop.service.ItemService;
+import com.example.Spring_shop.service.RecentProductService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +37,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
-    private final BidService bidService;
+    private final ItemRepository itemRepository;
+    private final ItemImgService itemImgService;
+    private final RecentProductService recentProductService;
 
 
     // 새로운 상품 등록 폼을 보여줍니다.
@@ -136,10 +146,18 @@ public class ItemController {
 
     // 상품 상세 정보를 조회합니다.
     @GetMapping(value = "/item/{itemId}")
-    public String itemDtl(Model model, @PathVariable("itemId")Long itemId){
+    public String itemDtl(Model model, @PathVariable("itemId")Long itemId, HttpServletRequest request, HttpServletResponse response){
 
         ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
         model.addAttribute("item", itemFormDto);
+        // 아이템 이미지 URL을 가져와서 쿠키에 최근 본 상품으로 저장합니다
+        String recentImage = itemImgService.selectProductImageUrlByProductId(itemId);
+        recentProductService.saveRecentProductToCookie(itemId, response, request, recentImage, itemFormDto.getItemNm());
+
+        List<RecentProduct> recentProducts = recentProductService.getRecentProductsFromCookie(request);
+        for (int i=0; i<recentProducts.size(); i++){
+            System.out.println("인덱스가 제대로 바뀌는가"+ recentProducts.get(i).getItemNm());
+        }
 
         return "/item/itemDtl";
         //아이템 상세정보
@@ -163,6 +181,21 @@ public class ItemController {
         //enum값 받은 걸로 상품종류 구분하고 , 페이지네비게이션 달아서 5개이상이면 페이지 생기고
         //조회한 데이터로 출력
         return "item/items";
+    }
+    @GetMapping("/listItem")
+    public ResponseEntity<List<Item>> listItem(){
+        List<Item> itemList = new ArrayList<>();
+        List<Item> itemList1 = itemRepository.findAll();
+        for (int i = itemList1.size() - 1; i >= 0; i--) {
+            if (itemList.size() == 5) {
+                break; // itemList에 5개의 아이템이 추가되면 루프 종료
+            }
+            if (itemList1.get(i) != null) {
+                itemList.add(itemList1.get(i)); // itemList1의 마지막부터 아이템 추가
+            }
+        }
+
+        return ResponseEntity.ok(itemList);
     }
 
 }

@@ -441,8 +441,8 @@ function addCart(){
 
                 <div th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">
                     <button type="button" class="btn btn-light border border-primary btn-lg" id="bidButton" onclick="bid()">입찰하기</button>
-                    <button type="button" class="btn btn-light border border-primary btn-lg" id="addCart" onclick="addCart()">
-                        <span class="heart-icon">&#9829;</span>
+                    <button type="button" class="btn btn-light border border-primary btn-lg" id="addCart">
+                        <img th:src="@{/img/heart.png}" alt="Add to Cart" style="width: 30px; height: 30px; border: none;"/>
                     </button>
                 </div>
                 <div th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">

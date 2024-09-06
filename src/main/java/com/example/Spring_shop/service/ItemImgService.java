@@ -1,8 +1,12 @@
 package com.example.Spring_shop.service;
 
 
+import com.example.Spring_shop.dto.ItemFormDto;
+import com.example.Spring_shop.dto.ItemImgDto;
+import com.example.Spring_shop.entity.Item;
 import com.example.Spring_shop.entity.ItemImg;
 import com.example.Spring_shop.repository.ItemImgRepository;
+import com.example.Spring_shop.repository.ItemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,7 @@ public class ItemImgService {
 
     private final ItemImgRepository itemImgRepository;
     private final FileService fileService;
+    private final ItemRepository itemRepository;
 
     public void saveItemImg(ItemImg itemImg, MultipartFile itemImgFile) throws Exception{
         String oriImgName = itemImgFile.getOriginalFilename(); // 오리지날 이미지 경로
@@ -41,6 +49,22 @@ public class ItemImgService {
         itemImg.updateItemImg(oriImgName, imgName, imgUrl);
         System.out.println("(((((");
         itemImgRepository.save(itemImg);
+
+    }
+    @Transactional(readOnly = true)
+    public String selectProductImageUrlByProductId(Long id) {
+        // 아이템 이미지 리스트를 아이템 ID로 조회
+        List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(id);
+
+        // 첫 번째 이미지만 가져오기
+        if (itemImgList.isEmpty()) {
+            throw new EntityNotFoundException("No images found for the item with ID " + id);
+        }
+
+        // 첫 번째 이미지의 URL 반환
+        ItemImg firstItemImg = itemImgList.get(0);
+        System.out.println(itemImgList.get(0)+"제대로 읽어오는지 확인");
+        return firstItemImg.getImgUrl(); // `getImageUrl()`은 이미지 URL을 반환하는 메소드입니다
     }
     public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception{
         if (!itemImgFile.isEmpty()){ // 상품의 이미지를 수정한 경우 상품 이미지 업데이트

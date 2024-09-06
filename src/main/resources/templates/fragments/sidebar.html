@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>사이드바</title>
+    <style>
+        /* 전체 폰트 스타일 */
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* 사이드바 컨테이너 스타일링 */
+        .sidebar-container {
+            position: relative;
+        }
+
+        /* 사이드바 스타일링 */
+        .sidebar-container .sidebar {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            border-left: 1px solid #dee2e6;
+            padding: 20px;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: right 0.3s ease;
+        }
+
+        .sidebar-container .sidebar.open {
+            right: 0;
+        }
+
+        /* 사이드바 토글 버튼 스타일 */
+        .sidebar-container .sidebar-toggle {
+            position: fixed;
+            right: 10px;
+            top: 60px;
+            z-index: 1001;
+            width: 50px; /* 버튼 너비 */
+            height: 50px; /* 버튼 높이 */
+            background-size: cover; /* 이미지 커버 */
+            background-repeat: no-repeat; /* 이미지 반복 방지 */
+            background-position: center; /* 이미지 중앙 정렬 */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-image 0.3s; /* 이미지 변경 부드럽게 */
+        }
+
+        .sidebar-container .sidebar-toggle.open {
+            background-image: url('img/toggleoff.png'); /* 사이드바 열릴 때 이미지 */
+        }
+
+        .sidebar-container .sidebar-toggle.closed {
+            background-image: url('img/toggleon.png'); /* 사이드바 닫힐 때 이미지 */
+        }
+
+        .sidebar-container .list-group-item {
+            transition: transform 0.5s, opacity 1.5s;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-container .fade-out {
+            animation: fadeOut 1.5s forwards;
+        }
+
+        .sidebar-container .fade-in {
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sidebar-container .item-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-container h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-container">
+    <button id="sidebarToggle" class="sidebar-toggle closed" onclick="toggleSidebar()"></button>
+
+    <div id="sidebar" class="sidebar">
+        <h2>업데이트된 상품</h2>
+        <ul id="itemList" class="list-group">
+            <!-- 아이템 목록이 여기에 동적으로 추가됩니다. -->
+        </ul>
+
+        <h2>최근 본 상품</h2>
+        <ul id="recentItemList" class="list-group">
+            <!-- 최근 본 상품 목록이 여기에 동적으로 추가됩니다. -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // 사이드바 토글 함수
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleButton = document.getElementById('sidebarToggle');
+        sidebar.classList.toggle('open');
+        toggleButton.classList.toggle('open');
+        toggleButton.classList.toggle('closed');
+    }
+
+    function fetchRecentItems() {
+        fetch('/listItem')
+            .then(response => response.json())
+            .then(data => {
+                const itemList = document.getElementById('itemList');
+                const newItems = [];
+
+                for (let i = 0; i < data.length; i++) {
+                    const item = data[i];
+                    const itemNumber = i + 1;
+                    const itemName = item ? (item.itemNm || '') : '';
+                    const itemLink = item ? `/item/${item.id}` : '#';
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item fade-in';
+                    listItem.innerHTML = `<a href="${itemLink}" style="text-decoration: none; color: inherit;"><strong>${itemNumber}. ${itemName}</strong></a><br>`;
+                    newItems.push(listItem);
+                }
+
+                while (newItems.length < 5) {
+                    const emptyItem = document.createElement('li');
+                    emptyItem.className = 'list-group-item fade-in';
+                    emptyItem.innerHTML = `${newItems.length + 1}. 빈 항목`;
+                    newItems.push(emptyItem);
+                }
+
+                const oldItems = Array.from(itemList.children);
+                oldItems.forEach(item => {
+                    item.classList.add('fade-out');
+                    item.style.transform = 'translateY(10px)';
+                });
+
+                setTimeout(() => {
+                    itemList.innerHTML = '';
+                    newItems.forEach(item => itemList.appendChild(item));
+                }, 1500);
+            })
+            .catch(error => console.error('Error fetching items:', error));
+    }
+
+    function fetchRecentViews() {
+        fetch('/recentViews')
+            .then(response => response.json())
+            .then(data => {
+                const recentItemList = document.getElementById('recentItemList');
+                const recentItems = [];
+
+                const maxRecentItems = 3;
+                for (let i = 0; i < Math.min(data.length, maxRecentItems); i++) {
+                    const item = data[i];
+                    const itemNumber = i + 1;
+                    const imageUrl = item.imageUrl || '';
+                    const itemName = item.itemNm || '';
+
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item fade-in';
+                    listItem.innerHTML = `
+                        <a href="/item/${item.productId}" style="text-decoration: none; color: inherit;">
+                            <img src="${imageUrl}" alt="${itemName}" class="item-image"><br>
+                            <strong>${itemNumber}. ${itemName}</strong>
+                        </a><br>`;
+                    recentItems.push(listItem);
+                }
+
+                while (recentItems.length < maxRecentItems) {
+                    const emptyItem = document.createElement('li');
+                    emptyItem.className = 'list-group-item fade-in';
+                    emptyItem.innerHTML = `${recentItems.length + 1}. `;
+                    recentItems.push(emptyItem);
+                }
+
+                const oldRecentItems = Array.from(recentItemList.children);
+                oldRecentItems.forEach(item => {
+                    item.classList.add('fade-out');
+                    item.style.transform = 'translateY(10px)';
+                });
+
+                setTimeout(() => {
+                    recentItemList.innerHTML = '';
+                    recentItems.forEach(item => recentItemList.appendChild(item));
+                }, 1500);
+            })
+            .catch(error => console.error('Error fetching recent views:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchRecentItems();
+        fetchRecentViews();
+        setInterval(fetchRecentItems, 5000);
+        setInterval(fetchRecentViews, 5000);
+    });
+</script>
+</body>
+</html>
