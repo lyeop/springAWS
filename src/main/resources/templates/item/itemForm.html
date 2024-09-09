@@ -23,9 +23,10 @@
                 bindDomEvent();
             });
 
-            function bindDomEvent(){
+          function bindDomEvent(){
+                // 파일 확장자 확인
                 $(".imageFile.form-control").on("change", function(){
-                    // 이미지 파일 확장자 확인
+                    var fileInput = this;
                     var fileName = $(this).val().split("\\").pop();
                     var fileExt = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
 
@@ -33,9 +34,18 @@
                         && fileExt !== "png" && fileExt !== "bmp"){
                         alert("이미지 파일만 등록할 수 있습니다.");
                         $(this).val("");
+                        $(fileInput).siblings('.preview-img').hide();
                         return;
                     }
+
+                    // 미리보기 로직
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $(fileInput).siblings('.preview-img').attr('src', e.target.result).show();
+                    }
+                    reader.readAsDataURL(fileInput.files[0]);
                 });
+
 
                 $(function() {
                     $('input[name="endDate"]').daterangepicker({
@@ -72,9 +82,9 @@
 
             .h2 {
                 text-align: center;
-                color: #000;
-                font-weight : bold;
-                margin-bottom: 20px;
+                color: #007bff;
+                font-weight: bold;
+                margin-bottom: 30px;
             }
 
             .form-select, .form-control {
@@ -88,34 +98,24 @@
                 box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
             }
 
-            .input-group-prepend .input-group-text {
-                background-color: #007bff;
-                color: #fff;
-                border: none;
-                border-radius: 4px 0 0 4px;
-            }
-
-            .input-group-append .input-group-text {
-                background-color: #007bff;
-                color: #fff;
-                border: none;
-                border-radius: 0 4px 4px 0;
-            }
-
             .btn-primary {
-                background-color: white !important;
+                background-color: #9ccc65 !important;
                 border-color: #9ccc65 !important;
-                color : black;
+                color: black;
                 padding: 10px 20px;
                 font-size: 16px;
                 border-radius: 4px;
                 cursor: pointer;
                 transition: background-color 0.3s;
+                width: 100%;
             }
 
             .btn-primary:hover {
-                background-color: #9ccc65 !important;
-                color : #000;
+                background-color: #87b947 !important;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
             }
 
             .fieldError {
@@ -126,15 +126,17 @@
 
             .img-div {
                 margin-bottom: 10px;
+                text-align: center;
             }
 
-            .input-group .image.input-group-text {
-                background-color: #007bff;
-                color: #fff;
-            }
-
-            .input-group .imageFile.form-control {
-                border-radius: 0 4px 4px 0;
+            .preview-img {
+                display: none;
+                width: 100%;
+                max-width: 200px;
+                height: auto;
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
             }
 
             .input-group input[type="file"] {
@@ -144,20 +146,18 @@
                 font-size: 14px;
             }
 
-            .row.mb-4 {
-                margin-bottom: 20px;
+            label {
+                font-weight: bold;
+            }
+
+            option {
+                color: blue;
             }
 
             textarea.form-control {
                 resize: none;
             }
-            label{
-                font-weight : bold;
-            }
-            option{
-                color:blue;
 
-            }
         </style>
     </th:block>
 </head>
@@ -229,17 +229,20 @@
             <div class="row" th:each="num: ${#numbers.sequence(1,5)}">
                 <div class="input-group mb-3">
                     <label class="input-group-text" th:text="'상품이미지 ' + ${num}"></label>
-                    <input type="file" class="form-control" name="itemImgFile">
+                    <input type="file" class="form-control imageFile" name="itemImgFile">
+                    <img class="preview-img" alt="미리보기 이미지">
                 </div>
             </div>
         </div>
+
 
         <div th:if="${not #lists.isEmpty(itemFormDto.itemImgDtoList)}">
             <div class="row" th:each="itemImgDto, status: ${itemFormDto.itemImgDtoList}">
                 <div class="input-group mb-3">
                     <label class="input-group-text" th:text="${not #strings.isEmpty(itemImgDto.oriImgName)} ? ${itemImgDto.oriImgName} : '상품이미지 ' + ${status.index+1}"></label>
-                    <input type="file" class="form-control" name="itemImgFile">
+                    <input type="file" class="form-control imageFile" name="itemImgFile">
                     <input type="hidden" name="itemImgIds" th:value="${itemImgDto.id}">
+                    <img class="preview-img" th:src="@{|${itemImgDto.imgUrl}|}" alt="미리보기 이미지" style="display:block; width: 300px; height: auto;">
                 </div>
             </div>
         </div>

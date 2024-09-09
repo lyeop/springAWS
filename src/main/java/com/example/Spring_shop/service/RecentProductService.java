@@ -54,9 +54,7 @@ public class RecentProductService {
 
         // 최신 아이템을 리스트의 앞쪽에 추가
 
-        for(RecentProduct r : recentProducts){
-            System.out.println(r.getItemNm()+"===========");
-        }
+
 
         // 리스트의 첫 번째 위치에 추가
         recentProducts.add(0, newProduct);
@@ -74,7 +72,7 @@ public class RecentProductService {
             cookie.setMaxAge(60 * 60); // 쿠키를 7일 동안 유지
             cookie.setPath("/");
             response.addCookie(cookie);
-            System.out.println("쿠키 생성: " + cookie.getName() + " 값: " + cookie.getValue());
+
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -82,16 +80,13 @@ public class RecentProductService {
 
     public List<RecentProduct> getRecentProductsFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        System.out.println(cookies.length+"###########################");
-        for (Cookie cookie : cookies) {
-            System.out.println(cookie.getValue()+"%%%%%%%%%%%%%%%%%%%");
-        }
+
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (RECENT_PRODUCTS_COOKIE_NAME.equals(cookie.getName())) {
                     try {
                         String decodedValue = URLDecoder.decode(cookie.getValue(), CHARSET);
-                        System.out.println("디코딩된 쿠키 값: " + decodedValue);
+
                         return convertStringToRecentProducts(decodedValue);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
@@ -114,7 +109,7 @@ public class RecentProductService {
     }
 
     private List<RecentProduct> convertStringToRecentProducts(String cookieValue) {
-        System.out.println("convertStringToRecentProducts");
+
         List<RecentProduct> recentProducts = new ArrayList<>();
         if (cookieValue != null && !cookieValue.isEmpty()) {
             String[] items = cookieValue.split(";");

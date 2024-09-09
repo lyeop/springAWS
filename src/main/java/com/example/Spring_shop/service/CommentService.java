@@ -1,5 +1,6 @@
 package com.example.Spring_shop.service;
 
+import com.example.Spring_shop.constant.Role;
 import com.example.Spring_shop.dto.AddCommentRequest;
 
 import com.example.Spring_shop.entity.Comment;
@@ -39,6 +40,8 @@ public class CommentService {
                 .post(post)
                 .member(member)
                 .comment(request.getComment())
+                .maskedName(maskName(member.getName()))
+                .isAdmin(member.getRole().equals(Role.ADMIN))
                 .build();
 
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Comment: " + comment);
@@ -48,5 +51,14 @@ public class CommentService {
     public List<Comment> getCommentsByPostId(Long postId) {
         return commentRepository.findByPostId(postId);
     }
+    public void deleteComment(Long id){
 
+        commentRepository.deleteById(id);
+    }
+    private String maskName(String name) {
+        if (name.length() > 2) {
+            return name.substring(0, name.length() - 2) + "**"; // 끝 두 글자 마스킹
+        }
+        return name;
+    }
 }

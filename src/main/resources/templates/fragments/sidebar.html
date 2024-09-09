@@ -15,7 +15,7 @@
             position: relative;
         }
 
-        /* 사이드바 스타일링 */
+       /* 사이드바 스타일링 */
         .sidebar-container .sidebar {
             position: fixed;
             right: -300px;
@@ -34,31 +34,29 @@
         .sidebar-container .sidebar.open {
             right: 0;
         }
-
-        /* 사이드바 토글 버튼 스타일 */
+       /* 사이드바 토글 버튼 스타일 */
         .sidebar-container .sidebar-toggle {
             position: fixed;
             right: 10px;
             top: 60px;
             z-index: 1001;
-            width: 50px; /* 버튼 너비 */
-            height: 50px; /* 버튼 높이 */
-            background-size: cover; /* 이미지 커버 */
-            background-repeat: no-repeat; /* 이미지 반복 방지 */
-            background-position: center; /* 이미지 중앙 정렬 */
+            width: 50px;
+            height: 50px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: background-image 0.3s; /* 이미지 변경 부드럽게 */
         }
 
         .sidebar-container .sidebar-toggle.open {
-            background-image: url('img/toggleoff.png'); /* 사이드바 열릴 때 이미지 */
+            background-image: url('/img/toggleoff.png'); /* 절대 경로로 설정 */
         }
 
         .sidebar-container .sidebar-toggle.closed {
-            background-image: url('img/toggleon.png'); /* 사이드바 닫힐 때 이미지 */
+            background-image: url('/img/toggleon.png'); /* 절대 경로로 설정 */
         }
 
         .sidebar-container .list-group-item {
@@ -108,15 +106,17 @@
 <body>
 
 <div class="sidebar-container">
-    <button id="sidebarToggle" class="sidebar-toggle closed" onclick="toggleSidebar()"></button>
+    <button id="sidebarToggle" class="sidebar-toggle closed"
+            style="background-image: url('[[@{/img/toggleon.png}]]');"
+            onclick="toggleSidebar()"></button>
 
     <div id="sidebar" class="sidebar">
-        <h2>업데이트된 상품</h2>
+        <h2>New</h2>
         <ul id="itemList" class="list-group">
             <!-- 아이템 목록이 여기에 동적으로 추가됩니다. -->
         </ul>
 
-        <h2>최근 본 상품</h2>
+        <h2>Recently viewed</h2>
         <ul id="recentItemList" class="list-group">
             <!-- 최근 본 상품 목록이 여기에 동적으로 추가됩니다. -->
         </ul>
@@ -125,13 +125,40 @@
 
 <script>
     // 사이드바 토글 함수
+(function() {
+    // 사이드바 토글 함수
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const toggleButton = document.getElementById('sidebarToggle');
         sidebar.classList.toggle('open');
-        toggleButton.classList.toggle('open');
+         toggleButton.classList.toggle('open');
         toggleButton.classList.toggle('closed');
+
+    if (sidebar.classList.contains('open')) {
+        toggleButton.style.backgroundImage = "url('[[@{/img/toggleoff.png}]]')";
+    } else {
+        toggleButton.style.backgroundImage = "url('[[@{/img/toggleon.png}]]')";
     }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('sidebarToggle');
+        document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+         if (document.getElementById('sidebar').classList.contains('open')) {
+            toggleButton.style.backgroundImage = "url('/img/toggleoff.png')";
+        } else {
+            toggleButton.style.backgroundImage = "url('/img/toggleon.png')";
+        }
+        fetchRecentItems();
+        fetchRecentViews();
+        setInterval(fetchRecentItems, 5000);
+        setInterval(fetchRecentViews, 5000);
+
+
+        // 사이드바 토글 이벤트 연결
+        toggleButton.addEventListener('click', toggleSidebar);
+    });
+})();
 
     function fetchRecentItems() {
         fetch('/listItem')

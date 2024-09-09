@@ -71,7 +71,7 @@ public class CustomerCenterController {
 
         model.addAttribute("customerCenterPostFormDto", customerCenterPostFormDto);
 
-        return "/customerCenter/customerForm";
+        return "customerCenter/customerForm";
     }
 
     @PostMapping(value = "/customerCenter/new")
@@ -79,7 +79,7 @@ public class CustomerCenterController {
                                          Model model, Principal principal) {
         // @Valid 붙은 객체를 검사해서 결과에 에러가 있으면 실행
         if (bindingResult.hasErrors()) {
-            return "/customerCenter/customerForm";//다시 작성화면으로 돌려보냄
+            return "customerCenter/customerForm";//다시 작성화면으로 돌려보냄
         }
         //유효성 검사
         try {

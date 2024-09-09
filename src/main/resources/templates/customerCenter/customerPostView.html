@@ -13,84 +13,78 @@
 
 <th:block layout:fragment="script">
     <script th:inline="javascript">
-
-
         $(document).ready(function() {
+            var csrfToken = $("meta[name='_csrf']").attr("content");
+            var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 
-         var csrfToken = $("meta[name='_csrf']").attr("content");
-         var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+            // 댓글 작성 폼 제출
+            $('#commentForm').submit(function(event) {
+                event.preventDefault(); // 기본 폼 제출 방지
 
-        $('#commentForm').submit(function(event) {
-        event.preventDefault(); // 기본 폼 제출 방지
+                var postId = [[${post.id}]];
+                var memberId = [[${member.id}]];
+                var commentText = $('#commentText').val();
 
+                var addCommentRequestData = {
+                    postId: postId,
+                    memberId: memberId,
+                    comment: commentText
+                };
 
-        var postId = [[${post.id}]];
-        var memberId = [[${member.id}]];
-        var comment = document.getElementById('commentText').value;
+                var addCommentRequest = JSON.stringify(addCommentRequestData);
 
-        var addCommentRequestData = {
-            postId: postId,
-            memberId: memberId,
-            comment: comment
-     };
+                $.ajax({
+                    url: '/comments/add', // 서버로 댓글 추가 요청
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: addCommentRequest,
+                    headers: {
+                        [csrfHeader]: csrfToken // CSRF 토큰을 헤더에 추가
+                    },
+                    success: function(response) {
+                        // 서버에서 응답으로 받은 데이터를 사용하여 새로운 댓글 추가
+                        var newCommentHtml = `
+                            <div class="comment" id="comment-${response.id}">
+                                <p class="author">
+                                    ${response.isAdmin ? '운영자' : response.maskedName}
+                                </p>
+                                <p class="text">${response.comment}</p>
+                                <button class="delete-btn delete-comment" data-comment-id="${response.id}">삭제</button>
+                            </div>
+                        `;
+                        // 댓글 리스트에 추가
+                        $('#commentList').append(newCommentHtml);
+                        $('#commentText').val(''); // 입력 필드 비우기
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
 
-    var addCommentRequest = JSON.stringify(addCommentRequestData);
+            // 댓글 삭제
+            $(document).on('click', '.delete-comment', function(event) {
+                event.preventDefault();
+                var commentId = $(this).data('comment-id');
 
-        $.ajax({
-            url: '/comments/add',
-            type: 'POST',
-            contentType: 'application/json',
-            data:addCommentRequest,
-            headers: {
-                 [csrfHeader]: csrfToken // CSRF 토큰을 헤더에 추가
-             },
-            success: function(response) {
-                var newCommentHtml = `
-                         <div class="comment">
-                             <p class="text">${response.comment}</p>
-                         </div>
-                     `;
-                     $('#commentList').append(newCommentHtml);
-                     $('#commentText').val(''); // 입력 필드 비우기
-            },
-            error: function(error) {
-                console.log('Error:', error);
-            }
+                if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                    $.ajax({
+                        url: '/comments/delete/' + commentId,
+                        type: 'POST',
+                        headers: {
+                             [csrfHeader]: csrfToken
+                        },
+                        success: function(response) {
+                            $('#comment-' + commentId).remove(); // 댓글 삭제
+                        },
+                        error: function(error) {
+                            console.error('댓글 삭제 중 오류 발생:', error);
+                            alert("댓글 삭제 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            });
         });
-    });
- });
-
-
-        var postId = [[${post.member.id}]]; // 포스트 작성자의 member.id (post에 조인된 member.id)
-        var currentUserId = [[${member.id}]]; // 현재 로그인 된 member.id임
-        var role = [[${member.role}]]; // 로그인 된 role
-
-
-        function confirmDelete() {
-            console.log(role);
-
-            if(role == 'ADMIN'){
-                if (confirm("정말로 삭제하시겠습니까?")) {
-                    document.getElementById("deleteForm").submit(); // 삭제 실행
-                }
-            } else if (postId == currentUserId) {
-                if (confirm("정말로 삭제하시겠습니까?")) {
-                    document.getElementById("deleteForm").submit(); // 삭제 실행
-                }
-            } else {
-                alert("삭제 권한이 없습니다.");
-            }
-        }
-
-        function confirmUpdate() {
-            if(postId !== currentUserId) {
-                alert("수정 권한이 없습니다.");
-            } else {
-                if (confirm("정말로 수정하시겠습니까?")) {
-                    document.getElementById("updateForm").submit(); // 수정 실행
-                }
-            }
-        }
     </script>
 </th:block>
 
@@ -152,6 +146,20 @@
         #commentList .comment .text {
             color: #666;
             line-height: 1.6;
+        }
+
+        #commentList .comment .delete-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        #commentList .comment .delete-btn:hover {
+            background-color: #c82333;
         }
 
         body {
@@ -243,13 +251,42 @@
             opacity: 0.8;
         }
 
-        .go-back-link {
-            float: right;
-            color: #007bff;
+        a.go-back-link {
+            background-color: #28a745; /* 버튼 배경색 변경 */
+            color: white; /* 링크 글자색 변경 */
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 20px;
             text-decoration: none;
             cursor: pointer;
-            margin-top: 10px;
+            float: right; /* 버튼을 오른쪽으로 이동 */
         }
+
+        a.go-back-link:hover {
+            background-color: #218838; /* 호버 시 배경색 */
+            color: #fff; /* 호버 시에도 글자색 유지 */
+        }
+
+        /* 모든 a 태그에 대한 기본 스타일 설정 (필요 시) */
+        a {
+            color: inherit; /* 부모로부터 글자색 상속 */
+            text-decoration: none; /* 밑줄 제거 */
+        }
+
+        a:hover {
+            color: inherit; /* 호버 시에도 글자색 유지 */
+            text-decoration: underline; /* 밑줄 표시 (필요 시) */
+        }
+           .admin-author {
+        font-weight: bold;
+        color: black;
+        background-color: #29C0FF; /* 빨간색 배경 */
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
     </style>
 </th:block>
 
@@ -257,31 +294,52 @@
 <div class="container" layout:fragment="content">
     <div class="post-detail">
         <input type="hidden" th:value="${member.id}">
-        <h2 th:text="${post.title}">제목</h2>
+
+        <!-- 제목과 작성자 정보 추가 -->
+        <h2> <span th:text="${post.title}"></span></h2>
+        <p>작성자 :  <span th:if="${post.member.role == T(com.example.Spring_shop.constant.Role).ADMIN}" class="admin-author">운영자</span>
+            <span th:if="${post.member.role != T(com.example.Spring_shop.constant.Role).ADMIN}" th:text="${#strings.substring(post.member.name, 0, post.member.name.length() - 2) + '**'}"></span></p>
         <hr>
-        <p class="content" th:text="${post.content}">내용</p>
+
+        <!-- 내용 -->
+        <h3 class="content"><strong></strong></h3><br> <p><span th:text="${post.content}"></span></p>
         <hr>
+
         <div class="post-actions">
-            <form th:id="deleteForm" th:action="@{/customerCenter/delete/{id}(id=${post.id})}" method="post" style="display: inline;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="button" class="delete-btn" onclick="confirmDelete()">삭제</button>
-            </form>
             <form th:id="updateForm" th:action="@{/customerCenter/update/{id}(id=${post.id})}" method="post" style="display: inline;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="button" class="update-btn" onclick="confirmUpdate()">수정</button>
             </form>
-            <form th:if="${member.role == T(com.example.Spring_shop.constant.Role).ADMIN}" th:id="commentForm">
-                <textarea id="commentText" required></textarea>
-                <button type="submit">댓글 달기</button>
+            <form th:id="deleteForm" th:action="@{/customerCenter/delete/{id}(id=${post.id})}" method="post" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="button" class="delete-btn" onclick="confirmDelete()">삭제</button>
             </form>
+
         </div>
+
+        <!-- 댓글 작성 폼: 관리자나 게시물 작성자만 댓글 작성 가능 -->
+        <form th:if="${member.role == T(com.example.Spring_shop.constant.Role).ADMIN} or ${post.member.id} == ${member.id}" id="commentForm">
+            <textarea id="commentText" required></textarea>
+            <button type="submit">댓글 달기</button>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        </form>
+
+        <!-- 댓글 리스트 -->
         <div id="commentList">
-            <!-- 댓글 리스트가 여기에 추가됩니다. -->
-            <div th:each="comment : ${comments}" class="comment">
+            <div th:each="comment : ${comments}" class="comment" th:id="'comment-' + ${comment.id}">
+                <p class="author">
+                    <span th:if="${comment.member.role == T(com.example.Spring_shop.constant.Role).ADMIN}" class="admin-author">운영자</span>
+                    <span th:if="${comment.member.role != T(com.example.Spring_shop.constant.Role).ADMIN}" th:text="${#strings.substring(comment.member.name, 0, comment.member.name.length() - 2) + '**'}"></span>
+                </p>
                 <p class="text" th:text="${comment.comment}"></p>
+
+                <!-- 댓글 삭제 버튼: 댓글 작성자만 삭제 가능 -->
+                <button th:if="${comment.member.id == member.id}" class="delete-btn delete-comment" th:data-comment-id="${comment.id}">댓글 삭제</button>
             </div>
         </div>
-        <a href="/customerCenter/ADMIN" class="go-back-link">목록으로 돌아가기</a>
+
+        <!-- 목록으로 돌아가기 버튼 -->
+        <a href="/customerCenter/USER" class="go-back-link">목록으로 돌아가기</a>
     </div>
 </div>
 
@@ -290,5 +348,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
-
 </html>
+

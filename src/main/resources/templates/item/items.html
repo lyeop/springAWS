@@ -68,91 +68,31 @@
 
     <th:block layout:fragment="css">
         <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 0;
+            }
+
             .carousel-inner > .carousel-item {
                 height: auto;
             }
 
-            .margin {
-                margin-bottom: 30px;
-            }
-
             .banner {
-                max-width: 100%; /* 최대 너비를 100%로 설정 */
-                max-height: 300px; /* 높이를 자동으로 설정 */
+                max-width: 100%;
                 height: auto;
                 display: block;
                 margin: 0 auto;
-                object-fit: contain;
                 margin-bottom: 30px;
+                object-fit: contain;
             }
 
-            .card {
-                 margin-bottom: 30px;
-                 border: none;
-                 box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                 transition: transform 0.2s;
-             }
-
-             .card:hover {
-                 transform: translateY(-5px);
-             }
-
-             .card img {
-                 border-radius: 10px 10px 0 0;
-             }
-
-             .card-body {
-                 padding: 1.5rem;
-             }
-
-             .card-title {
-                 font-size: 1.25rem;
-                 font-weight: bold;
-             }
-
-             .card-title.text-danger {
-                 color: #dc3545 !important;
-             }
-            .card-text {
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-                font-size: 0.875rem;
-                color: #6c757d;
-
-            }
-
-            a {
-                text-decoration: none;
-            }
-
-            a:hover {
-                text-decoration: none;
-            }
-
-            .text-dark a {
-                text-decoration: none;
-            }
-
-            .text-dark a:hover {
-                text-decoration: none;
-            }
-
-            .center {
-                text-align: center;
-                margin-top: 20px; /* 텍스트와 배너 이미지 사이의 간격 추가 */
-            }
-
-            .carousel-item {
-                position: relative; /* 자식 요소 배치 조정용 */
-            }
-
-            /* 전체 상품 목록 간판 스타일 */
             .product-list-header {
                 font-size: 2rem;
                 font-weight: bold;
                 text-align: center;
-                margin: 30px 0; /* 상하 여백 추가 */
+                margin: 30px 0;
                 position: relative;
             }
 
@@ -160,10 +100,86 @@
                 content: "";
                 display: block;
                 width: 80%;
-                max-width: 800px; /* 최대 너비를 배너 이미지 너비와 동일하게 설정 */
+                max-width: 800px;
                 height: 2px;
                 background-color: black;
-                margin: 10px auto 0; /* 위쪽 여백은 10px, 아래쪽 여백은 없음 */
+                margin: 10px auto 0;
+            }
+
+            .card {
+                margin-bottom: 30px;
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+
+            .card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            }
+
+            .card img {
+                border-radius: 10px 10px 0 0;
+                object-fit: cover;
+                max-height: 200px;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+                text-align: center;
+            }
+
+            .card-title {
+                font-size: 1.25rem;
+                font-weight: bold;
+                margin-bottom: 0.75rem;
+            }
+
+            .card-title.text-danger {
+                color: #dc3545 !important;
+            }
+
+            .card-text {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 1rem;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            .timer {
+                font-size: 1rem;
+                color: #17a2b8;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .pagination {
+                margin-top: 20px;
+                margin-bottom: 50px;
+            }
+
+            .pagination .page-item .page-link {
+                color: #007bff;
+                border: 1px solid #dee2e6;
+                transition: all 0.3s;
+            }
+
+            .pagination .page-item .page-link:hover {
+                background-color: #007bff;
+                color: #fff;
+            }
+
+            .pagination .page-item.active .page-link {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
+
+            .pagination .page-item.disabled .page-link {
+                color: #6c757d;
+                border-color: #dee2e6;
             }
         </style>
     </th:block>
@@ -200,9 +216,12 @@
     <!-- 검색 쿼리 및 결과 표시 -->
     <div class="product-list-header">
         <input type="hidden" name="searchQuery" th:value="${itemSearchDto.searchQuery}">
+
         <div th:if="${not #strings.isEmpty(itemSearchDto.searchQuery)}" class="center">
+
             <p class="h3 font-weight-bold" th:text="${itemSearchDto.searchQuery} + ' 검색결과'"></p>
         </div>
+            <div class="carousel-inner">
         <div th:if="${itemSearchDto.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM1}" class="center">
             <p class="h3 font-weight-bold" th:text="'크레스티드 게코 노말 목록'"></p>
         </div>

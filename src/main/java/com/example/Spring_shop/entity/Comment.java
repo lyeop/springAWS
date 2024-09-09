@@ -27,6 +27,7 @@ public class Comment {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String comment;
+    private String maskedName;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;
@@ -42,15 +43,18 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+    private boolean isAdmin;
 
 
     @Builder
-    public Comment(CustomerCenterPost post, Member member, String comment, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+    public Comment(CustomerCenterPost post, Member member, String comment, LocalDateTime createdDate, LocalDateTime modifiedDate,String maskedName ,boolean isAdmin ) {
         this.post = post;
         this.member = member;
         this.comment = comment;
         this.createdDate = createdDate != null ? createdDate : LocalDateTime.now();
         this.modifiedDate = modifiedDate != null ? modifiedDate : LocalDateTime.now();
+        this.maskedName=maskedName;
+        this.isAdmin=isAdmin;
     }
 
     // 댓글 수정

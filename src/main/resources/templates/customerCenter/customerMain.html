@@ -19,13 +19,13 @@
            if (isAdmin  != 'ADMIN') {
                alert('권한이 없습니다.');
                return false;
-           } else if(isAdmin =='ADMIN'){
+           } if(isAdmin =='ADMIN'){
             alert('공지사항 작성으로 이동.');
                document.getElementById("writeBtn").submit();
                return true;
             }else{
                alert('권한이 없습니다. 문의사항 작성으로 이동');
-               document.getElementById("writeBtn").submit();
+               document.getElementById("writeBtn2").submit();
                return true;
            }
        }
@@ -36,12 +36,13 @@
            if (isAdmin != 'USER') {
                alert('로그인이 필요합니다.');
                return false;
-           } if (isAdmin == 'ADMIN') {
-               alert('공지사항 작성으로 이동.');
-               document.getElementById("writeBtn").submit();
+           } if (isAdmin == 'USER') {
+               alert('문의 사항 작성으로 이동.');
+               document.getElementById("writeBtn2").submit();
                return true;
            } else {
-               document.getElementById("writeBtn2").submit();
+               alert('공지 사항 작성으로 이동.');
+               document.getElementById("writeBtn").submit();
                return true;
            }
        }

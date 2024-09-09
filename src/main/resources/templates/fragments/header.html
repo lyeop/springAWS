@@ -3,7 +3,87 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gowun+Dodum&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
+<style>
+    /* 전체적으로 귀여운 글꼴 적용 */
+    body, .navbar, .dropdown-menu, .nav-link, .form-control, .btn {
+        font-family: 'Nanum Pen Script', 'Gowun Dodum', sans-serif !important;
+    }
+
+    /* 드롭다운 애니메이션 */
+    .dropdown-menu {
+        display: none;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.5s ease !important;
+    }
+
+    .dropdown.show .dropdown-menu {
+        display: block !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    /* 검색창 및 버튼 디자인 */
+    .form-control {
+        padding: 0.2rem 0.75rem !important;
+        margin-left: 10px !important;
+        border-radius: 20px !important;
+        border: 1px solid #ccc !important;
+        display: inline-block !important;
+        width: auto !important;
+        vertical-align: middle !important;
+    }
+
+    .btn-outline-light {
+        border-radius: 20px !important;
+        padding: 0.25rem 1rem !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+        background-color: transparent !important; /* 배경 투명하게 유지 */
+        border: none !important; /* 테두리 제거 */
+        transition: background-color 0.3s ease, border-color 0.3s ease !important;
+    }
+
+    /* 버튼 hover 시 효과 */
+    .btn-outline-light:hover {
+        background-color: transparent !important; /* 배경을 투명하게 유지 */
+        border: none !important; /* 테두리 색상도 투명 */
+    }
+
+    /* 검색 아이콘 크기 */
+    .search-button-img {
+        width: 25px; /* 아이콘 크기를 적절하게 설정 */
+        height: 25px;
+        transition: all 0.3s ease !important;
+    }
+
+    /* 버튼 hover 시 이미지 변경 */
+    button:hover .search-button-img {
+        content: url('/img/검색1.png') !important; /* 호버 시 이미지 변경 */
+    }
+
+    /* 버튼 hover 상태에서 배경색 없애기 */
+    button:hover {
+        background-color: transparent !important; /* 버튼 배경 투명하게 유지 */
+    }
+
+    button:focus {
+        outline: none !important; /* 포커스 시 외곽선 제거 */
+        box-shadow: none !important;
+    }
+
+    /* 기본 버튼 색을 투명하게 설정 */
+    button {
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+</style>
 <body>
 <div th:fragment="header">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -12,13 +92,16 @@
                 <img th:src="@{/img/아이콘.png}" alt="경매 아이콘" width="30" height="30" class="d-inline-block align-top">
                 Lizard Auction Shop
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+                    aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown order-1">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false"
+                           sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
                             관리자 메뉴
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="adminDropdown">
@@ -31,16 +114,10 @@
                         </ul>
                     </li>
 
-                    <style>
-                        .dropdown-menu .nav-link {
-                            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-                            overflow: hidden; /* 넘치는 부분 감춤 */
-                            text-overflow: ellipsis; /* 넘치는 부분에 대해 ... 표시 */
-                        }
-                    </style>
 
                     <li class="nav-item dropdown order-2">
-                        <a class="nav-link dropdown-toggle" href="#" id="itemDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="itemDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
                             상품 목록
                         </a>
                         <ul class="dropdown-menu bg-light" aria-labelledby="itemDropdown">
@@ -65,7 +142,8 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown order-2">
-                        <a class="nav-link dropdown-toggle" href="#" id="customerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="customerDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
                             고객센터
                         </a>
                         <ul class="dropdown-menu bg-light" aria-labelledby="customerDropdown">
@@ -85,39 +163,34 @@
                         <a class="nav-link" href="/orders">구매이력</a>
                     </li>
                     <li class="nav-item order-6" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                        <a class="nav-link" href="/item/lizard">크롤링 테스트</a>
+                        <a class="nav-link" href="/item/lizard">크롤링</a>
                     </li>
                 </ul>
 
-                <style>
-                    .form-control {
-                        padding: 0.15rem 0.5rem; /* 검색창의 두께를 얇게 만듭니다. */
-                        margin-left: 10px;
-                    }
-                    .btn {
-                        white-space: nowrap; /* 검색 버튼의 텍스트가 한 줄로 나오도록 설정합니다. */
-                    }
-                </style>
                 <!-- 로그아웃 및 마이페이지 링크를 검색창 왼쪽으로 이동 -->
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item order-7" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" href="/members/mypage">마이페이지</a>
+                        <a class="nav-link" href="/members/mypage"><img th:src="@{/img/마이페이지.png}"></a>
                     </li>
                     <li class="nav-item order-6" sec:authorize="isAnonymous()">
                         <a class="nav-link" href="/members/login">로그인</a>
                     </li>
                     <li class="nav-item order-8" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" href="/members/logout">로그아웃</a>
+                        <a class="nav-link" href="/members/logout"><img th:src="@{/img/로그아웃.png}"></a>
                     </li>
                 </ul>
 
                 <form class="d-flex" th:action="@{/}" method="get">
-                    <input name="searchQuery" class="form-control me-2" type="search" placeholder="검색" aria-label="검색">
-                    <button class="btn btn-outline-light my-2 my-sm-0" type="submit">검색</button>
+                    <input name="searchQuery" class="form-control me-2" type="search" placeholder="검색" aria-label="검색" style="margin-top:5px;margin-left:10px;">
+                    <button class="btn btn-outline-light my-2 my-sm-0" type="submit" style="margin-top:10px;">
+                        <img th:src="@{/img/검색.png}" alt="검색" class="search-button-img">
+                    </button>
                 </form>
             </div>
         </div>
     </nav>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

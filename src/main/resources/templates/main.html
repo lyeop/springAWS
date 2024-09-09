@@ -169,11 +169,9 @@ function initMap() {
             }
 
             body {
-                position: relative;
-                background-image: url('/img/배경1.png');
-                background-size: cover; /* 이미지를 화면에 꽉 채우도록 설정 */
-                background-position: center; /* 이미지를 센터 정렬 */
-                /* 다른 배경 이미지 관련 속성들을 필요에 따라 추가할 수 있습니다 */
+                background-color: #2f4f4f; /* 다크 그린 계열 배경 */
+                color: #f5f5f5; /* 밝은 글씨 */
+                font-family: 'Courier New', Courier, monospace; /* 거칠고 자연적인 글씨체 */
             }
 
             .carousel-inner > .carousel-item {
@@ -181,12 +179,12 @@ function initMap() {
             }
 
             .carousel-item img {
-                max-width: 100%; /* 최대 너비를 100%로 설정 */
-                max-height: 300px; /* 높이를 자동으로 설정 */
+                max-width: 100%;
+                max-height: 500px;
                 height: auto;
                 display: block;
                 margin: 0 auto;
-                object-fit: contain;
+                object-fit: cover;
                 margin-bottom: 30px;
             }
 
@@ -236,7 +234,9 @@ function initMap() {
  }
 
  .card-text {
+     font-size: 0.875rem;
      text-overflow: ellipsis;
+     color: #cccccc; /* 연한 회색 */
      white-space: nowrap;
      overflow: hidden;
  }
@@ -268,6 +268,7 @@ function initMap() {
      height: 400px;
      margin: 0 auto;
      margin-top: 40px;
+      border: 3px solid #ffcc00; /* 지도 테두리 */
  }
 
  /* Pagination styling */
@@ -291,16 +292,22 @@ function initMap() {
 
  /* Directions section */
  .directions {
+
+ border-radius: 8px;
+ padding: 20px;
      margin-top: 20px;
      text-align: center;
      font-weight: bold;
+      color: black;
  }
 
  /* Product card styling */
  .card {
+    background-color: #3b3b3b;
      margin-bottom: 30px;
      border: none;
-     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+     color: #ffffff;
+     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* 음영 추가 */
      transition: transform 0.2s;
  }
 
@@ -310,6 +317,7 @@ function initMap() {
 
  .card img {
      border-radius: 10px 10px 0 0;
+     object-fit: cover;
  }
 
  .card-body {
@@ -319,6 +327,7 @@ function initMap() {
  .card-title {
      font-size: 1.25rem;
      font-weight: bold;
+     color: #ffcc00; /* 눈에 띄는 노란색 */
  }
 
  .card-title.text-danger {
@@ -327,19 +336,57 @@ function initMap() {
 
  .card-text {
      font-size: 0.875rem;
-     color: #6c757d;
+     color: #cccccc;
  }
 
  .timer {
      font-size: 1rem;
-     color: #17a2b8;
+     color: #00ced1;
  }
+  /* 카테고리 바 스타일 */
+            .category-bar {
+                display: flex;
+                justify-content: center; /* 카테고리를 가운데로 정렬 */
+                padding: 20px 0;
+                margin-bottom: 40px; /* 상품 목록과 구분되도록 마진 추가 */
+                border-bottom: 2px solid #ffcc00; /* 구분을 위한 선 추가 */
+            }
+
+            .category-item {
+                text-align: center;
+                margin-right: 30px;
+                cursor: pointer;
+            }
+
+            .category-item img {
+                width: 250px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 15px; /* 부드러운 사각형으로 모서리 둥글게 처리 */
+                border: 3px solid #ffcc00;
+               background-color: #333;
+               padding: 5px;
+            }
+
+
+            .category-item p {
+                margin-top: 10px;
+                font-size: 1rem;
+                font-weight: bold;
+                color: #ffcc00;
+            }
+
+            .category-item:hover p {
+                color: #ff4500; /* 호버 시 카테고리 이름 색상 변경 */
+            }
+
  /* 전체 상품 목록 간판 스타일 */
             .product-list-header {
-                font-size: 2rem;
+                font-size: 2.5rem;
                 font-weight: bold;
                 text-align: center;
-                margin: 30px 0; /* 상하 여백 추가 */
+                margin: 50px 0; /* 상하 여백 추가 */
+                 color: #ffcc00;
                 position: relative;
             }
 
@@ -349,7 +396,7 @@ function initMap() {
                 width: 80%;
                 max-width: 800px; /* 최대 너비를 배너 이미지 너비와 동일하게 설정 */
                 height: 2px;
-                background-color: black;
+                background-color: #ffcc00;
                 margin: 10px auto 0; /* 위쪽 여백은 10px, 아래쪽 여백은 없음 */
             }
 
@@ -365,6 +412,7 @@ function initMap() {
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <div class="carousel-inner" style="margin-top: 20px;">
             <div class="carousel-item active">
+
                 <img th:src="@{/img/아이콘.png}" class="d-block w-100" alt="...">
             </div>
             <div class="carousel-item">
@@ -384,14 +432,46 @@ function initMap() {
         </button>
     </div>
     <!-- 전체 상품 목록 간판 -->
-    <div class="product-list-header">
-        전체 상품 목록
-    </div>
 
-    <div th:if="${not #strings.isEmpty(itemSearchDto.searchQuery)}" class="center">
-        <p class="h3 font-weight-bold" th:text="${itemSearchDto.searchQuery} + ' 검색결과'"></p>
-    </div>
-
+    <!-- 카테고리 바 -->
+    <div class="container category-bar">
+        <div class="category-item">
+            <a th:href="@{/item/items/ITEM1}">
+            <img th:src="@{/img/크레스티드 게코 배너2.png}" alt="Category 1">
+            <p>크레스티드 게코</p>
+            </a>
+        </div>
+        <div class="category-item" >
+            <a th:href="@{/item/items/ITEM2}">
+            <img th:src="@{/img/모프 크레 배너.png}" alt="Category 2">
+            <p>모프 크레스티드</p>
+            </a>
+        </div>
+        <div class="category-item" >
+            <a th:href="@{/item/items/ITEM3}">
+            <img th:src="@{/img/레오파드 게코 배너.png}" alt="Category 3">
+            <p>레오파드 게코</p>
+            </a>
+        </div>
+        <div class="category-item" >
+            <a th:href="@{/item/items/ITEM4}">
+            <img th:src="@{/img/비어디드래곤 배너.png}" alt="Category 4">
+            <p>비어디드래곤</p>
+            </a>
+        </div>
+        <div class="category-item" >
+            <a th:href="@{/item/items/ITEM5}">
+            <img th:src="@{/img/리프테일 게코 배너.png}" alt="Category 5">
+            <p>리프테일 게코</p>
+            </a>
+        </div>
+        <div class="category-item">
+            <a th:href="@{/item/items/ITEM6}">
+            <img th:src="@{/img/모니터 배너.png}" alt="Category 6">
+            <p>모니터</p>
+            </a>
+        </div>
+</div>
     <div class="container">
         <div class="row row-cols-1 row-cols-md-3" id="itemContainer">
             <th:block th:each="item, status: ${items.getContent()}">

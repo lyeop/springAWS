@@ -139,7 +139,7 @@ public class OrderController {
         model.addAttribute("orderUid", id);
 
         return "order";
-        //결제할때 필요한 메소드
+
     }
 
 

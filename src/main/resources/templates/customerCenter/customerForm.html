@@ -19,156 +19,113 @@
 <th:block layout:fragment="css">
     <style>
         body {
-             position: relative;
-                background-image: url('/img/배경1.png');
-                background-size: cover; /* 이미지를 화면에 꽉 채우도록 설정 */
-                background-position: center; /* 이미지를 센터 정렬 */
-                /* 다른 배경 이미지 관련 속성들을 필요에 따라 추가할 수 있습니다 */
-             font-family: 'Noto Sans KR', sans-serif; /* 한글 폰트 설정 */
-         }
-         .container {
-             max-width: 800px;
-             margin: 20px auto;
-             background-color: #fff;
-             padding: 20px;
-             border: 1px solid #ced4da;
-             border-radius: 5px;
-             box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 그림자 효과 */
-         }
+            background-image: url('/img/배경1.png');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
 
-         .header {
-             text-align: center;
-             margin-bottom: 20px;
-         }
-         .header h3 {
-             font-weight: bold;
-             color: #333;
-             display: flex; /* 텍스트와 이미지를 가로로 정렬하기 위해 flex 사용 */
-             align-items: center; /* 수직 정렬 */
-             justify-content: center; /* 가로 정렬 */
-             flex-direction: column; /* 세로 정렬 */
-         }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
 
-         .header img {
-             margin-bottom: 10px; /* 이미지와 텍스트 사이 간격 조정 */
-             width: 200px; /* 이미지 너비 */
-             height: 200px; /* 이미지 높이 자동 조정 */
-         }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-         .header .notice-text {
-             font-size: 50px; /* 텍스트 크기 조정 */
-             margin-bottom: 0; /* 텍스트 아래 여백 제거 */
-         }
+        .header h3 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-         table {
-             width: 100%;
-             border-collapse: collapse;
-             margin-bottom: 20px;
-         }
+        .form-group label {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-         table td, table th {
-             padding: 12px;
-             border: 1px solid #ddd;
-             text-align: left;
-             font-size: 14px;
-         }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
 
-         input[type="text"], textarea {
-             width: calc(100% - 24px); /* 조정된 너비 */
-             padding: 10px;
-             font-size: 14px;
-             border: 1px solid #ddd;
-             border-radius: 3px;
-             box-sizing: border-box;
-             margin-bottom: 10px;
-         }
+        .form-group textarea {
+            height: 200px;
+            resize: none;
+        }
 
-         textarea {
-             height: 150px !important; /* 고정된 높이 */
-             resize: none; /* 리사이즈 비활성화 */
-         }
+        .submit-btn {
+            background-color: #9ccc65;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-         input[type="submit"] {
-             background-color: white;
-             color: #000;
-             padding: 12px 20px;
-             text-align: center;
-             text-decoration: none;
-             display: inline-block;
-             font-size: 16px;
-             border-color: #9ccc65;
-             border-radius: 3px;
-             cursor: pointer;
-             transition: background-color 0.3s;
-         }
-
-         input[type="submit"]:hover {
-             background-color: #9ccc65;
-         }
+        .submit-btn:hover {
+            background-color: #8bbc59;
+        }
     </style>
 </th:block>
 
 <th:block layout:fragment="script">
     <script th:inline="javascript">
-        $(document).ready(function() {
-    $('#writeForm').submit(function(event) {
-        event.preventDefault();
 
-        // 폼 데이터 및 CSRF 토큰 가져오기
-        var formData = $(this).serialize();
-        formData += '&' + encodeURIComponent('${_csrf.parameterName}') + '=' + encodeURIComponent('${_csrf.token}');
-
-        // Ajax로 데이터 전송
-        $.ajax({
-            type: 'POST',
-            url: 'write',
-            data: formData,
-            success: function(response) {
-                alert('작성 성공');
-                window.location.replace('list');
-            },
-            error: function() {
-                alert('작성 실패');
-            }
-        });
-    });
-});
     </script>
 </th:block>
 
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 <div class="container" layout:fragment="content">
-    <div class="header">
-        <table width="500" cellpadding="0" cellspacing="0" border="1">
-            <form action="/customerCenter/new" role="form" method="post" th:object="${customerCenterPostFormDto}">
+
+        <div class="header">
+            <h3 th:if="${customerCenterPostFormDto.role == T(com.example.Spring_shop.constant.Role).ADMIN}" th:text="'공지사항'"></h3>
+            <h3 th:if="${customerCenterPostFormDto.role == T(com.example.Spring_shop.constant.Role).USER}" th:text="'문의사항'"></h3>
+            <img th:src="@{/img/아이콘.png}" alt="아이콘"></h3>
+        </div>
+
+
+            <form id="writeForm" action="/customerCenter/new" role="form" method="post" th:object="${customerCenterPostFormDto}">
                 <input type="hidden" th:field="*{views}"/>
-                <div th:if="${customerCenterPostFormDto.role == T(com.example.Spring_shop.constant.Role).ADMIN}" class="center" value="ADMIN">
-                    <p class="h3 font-weight-bold" th:text="공지사항"></p>
-                </div>
+
                 <div th:if="${customerCenterPostFormDto.role == T(com.example.Spring_shop.constant.Role).USER}" class="center" value="USER">
                     <p class="h3 font-weight-bold" th:text="문의사항"></p>
                 </div>
+                <div th:if="${customerCenterPostFormDto.role == T(com.example.Spring_shop.constant.Role).ADMIN}" class="center" value="ADMIN">
+                    <p class="h3 font-weight-bold" th:text="공지사항"></p>
+                </div>
 
-                <input type="hidden" th:value="*{role}" th:id="role"/>
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <tr>
-                    <td>제목</td>
-                    <td><input type="text" th:field="*{title}" name="title" size="100"></td>
-                </tr>
-                <tr>
-                    <td>내용</td>
-                    <td><textarea th:field="*{content}" name="content"
-                                  style="width: calc(100% - 20px); padding: 10px; font-size: 14px;
-                  border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box;
-                  min-height: 200px; resize: vertical;"></textarea></td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <input type="submit" value="입력">
-                    </td>
-                </tr>
+
+
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" th:field="*{title}" name="title" id="title">
+                </div>
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea th:field="*{content}" name="content" id="content"></textarea>
+                </div>
+                <div class="text-center">
+                    <input type="submit" class="submit-btn" value="작성">
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             </form>
-        </table>
-    </div>
+
+
 </div>
 </html>

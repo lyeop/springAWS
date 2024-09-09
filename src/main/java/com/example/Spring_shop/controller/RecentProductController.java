@@ -28,14 +28,9 @@ public class RecentProductController {
     @ResponseBody
     public ResponseEntity<List<RecentProduct>> getRecentProducts(HttpServletRequest request) throws IOException {
         // 쿠키에서 최근 본 상품 정보를 읽어옴
-        System.out.println("getRecentProducts");
+
         List<RecentProduct> recentProducts = recentProductService.getRecentProductsFromCookie(request);
-        System.out.println("에이작스 구도오오오옹ㅇ"+recentProducts.size());
-        for (int i=0; i<recentProducts.size() ;i++){
-            if (recentProducts.get(i)!=null){
-                System.out.println(recentProducts.get(i).getItemNm()+"최근본상품 이름 순서");
-            }
-        }
+
 
         // 현재 상품의 이미지 URL을 포함한 전체 정보를 반환
         return ResponseEntity.ok(recentProducts);

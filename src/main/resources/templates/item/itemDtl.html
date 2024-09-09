@@ -9,14 +9,33 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
-    <link th:href="@{/css/style2.css}" rel="stylesheet">
+<!--    <link th:href="@{/css/style2.css}" rel="stylesheet">-->
 </head>
 
 <th:block layout:fragment="script">
     <script th:inline="javascript">
 
         $(document).ready(function(){
+        function scrollToSection(sectionId) {
+                $('html, body').animate({
+                    scrollTop: $(sectionId).offset().top
+                }, 500); // 500ms로 스크롤 이동
+            }
+
+            // 탭 클릭 이벤트 설정
+            $("#scrollToGraph").click(function() {
+                scrollToSection("#graphSection");
+            });
+
+            $("#scrollToPhotos").click(function() {
+                scrollToSection("#photosSection");
+            });
+
+            $("#scrollToDescription").click(function() {
+                scrollToSection("#descriptionSection");
+            });
          const myChart = new Chart(ctx, {
                type: 'line',
                data: {
@@ -201,7 +220,7 @@
 }
 
 function addCart(){
-             var token = $("meta[name='_csrf']").attr("content");
+            var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
             var timeRemainingText = document.getElementById('timer').textContent.trim();
              var itemId = $("#itemId").val();
@@ -358,23 +377,300 @@ function addCart(){
 </th:block>
 <th:block layout:fragment="css">
     <style>
-    .canvas-container {
-             width: 100%; /* 부모 컨테이너의 너비를 100%로 설정 */
-                max-width: 800px; /* 최대 너비를 800px로 설정 */
-                margin: 20px auto; /* 중앙 정렬 및 여백 설정 */
-                position: relative; /* 위치를 상대적으로 설정 */
-                height: 400px; /* 높이를 고정값으로 설정 */
-    }
-    #myChart {
-                    width: 100%; /* 부모 컨테이너의 너비에 맞게 조정 */
-                height: 100%; /* 부모 컨테이너의 높이에 맞게 조정 */
-                display: block; /* 블록 요소로 설정하여 부모 요소에 맞게 확장 */
-    }
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap');
+
+      /* 전체적인 스타일 */
+
+body {
+   background-color: #f0f5f3; /* 자연스러운 밝은 초록 계열 배경 */
+   color: #333;
+}
+body, h1, h2, h3, h4, h5, h6, p, div, span, a, button {
+            font-family: 'Nanum Gothic', sans-serif !important;
+        }
+
+.mgb-15 {
+   margin-bottom: 15px;
+}
+
+.mgt-30 {
+   margin-top: 20px;
+}
+
+.mgt-50 {
+   margin-top: 50px;
+}
+
+/* 이미지 관련 스타일 */
+.repImgDiv {
+   margin-right: 15px;
+   width: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.repImgDiv2 img {
+   width: 100%;
+   height: auto;
+   max-width: 800px;
+   object-fit: cover;
+   border-radius: 15px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 주요 이미지 스타일 */
+.repImg {
+   width: 100%;
+   height: auto;
+   max-height: 400px;
+   border-radius: 15px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wd50 {
+   width: 50%;
+   padding: 15px;
+}
+
+/* 배지 (판매중, 품절 등) */
+.badge {
+   font-size: 1.2rem !important; /* 폰트 크기 조정 */
+   padding: 10px 20px !important; /* 패딩 조정 */
+   border-radius: 5px !important;
+   background-color: #4caf50; !important; /* 자연을 연상시키는 초록색 */
+   color: white;
+   display: inline-block;
+   margin: 5px 0;
+}
+
+.badge.bg-danger {
+   background-color: #dc3545 !important; /* 품절 배경색 */
+}
+.badge2 {
+   font-size: 1.2rem !important; /* 폰트 크기 조정 */
+   padding: 10px 20px !important; /* 패딩 조정 */
+   border-radius: 5px !important;
+   background-color: #007bff; !important; /* 크레스티드게코, 모니터 카테고리 등 */
+   color: white !important;
+   display: inline-block;
+   margin: 5px 0;
+
+}
+.badge.bg-success {
+   background-color: #28a745; /* 판매중인 상태에 대한 초록색 */
+}
+
+/* 카테고리 및 판매 상태 텍스트 */
+.h4 {
+   font-size: 1.5rem;
+}
+
+.text-danger {
+   color: #dc3545 !important;
+}
+
+.input-group-text {
+   background-color: #eef5f2; /* 부드러운 색상 배경 */
+   border: 1px solid #ced4da;
+}
+
+.input-group-prepend span {
+   display: inline-block;
+   margin-left: 10px;
+}
+
+/* 버튼 스타일 */
+.btn {
+   margin: 5px;
+   padding: 10px 20px;
+   border: none;
+   border-radius: 30px;
+   background-color: #4caf50; /* 자연스러운 초록색 */
+   color: white;
+   font-weight: bold;
+   transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+   background-color: #388e3c; /* 더 어두운 초록색으로 변화 */
+   transform: translateY(-3px);
+}
+
+.btn-danger {
+   background-color: #e74c3c; /* 경매 마감 등 위험 알림용 버튼 */
+}
+
+.btn-lg {
+   font-size: 1.25rem;
+}
+.tab-buttons {
+   text-align: center;
+   margin: 20px 0;
+}
+.tab-buttons button {
+   background-color: #4caf50; /* 자연을 연상시키는 초록색 */
+   color: white;
+   border: none;
+   padding: 10px 20px;
+   font-size: 16px;
+   border-radius: 25px;
+   margin: 5px;
+   cursor: pointer;
+   transition: background-color 0.3s ease;
+}
+.tab-buttons button:hover {
+   background-color: #388e3c; /* 호버 시 더 진한 초록색 */
+}
+
+
+.rounded-pill {
+   border-radius: 50px;
+}
+
+.display-5 {
+   font-size: 2rem;
+}
+
+/* 테이블 스타일 */
+.table-container {
+   width: 100%;
+   max-width: 100%;
+   display: flex;
+   object-fit: cover;
+}
+
+.table {
+   width: 100%;
+   border-collapse: collapse;
+   border-spacing: 0;
+}
+
+.table th, .table td {
+   padding: 12px;
+   border-bottom: 1px solid #ddd;
+   text-align: center;
+}
+
+/* 타이머 및 입찰 관련 섹션 */
+.timer-section, .bid-section {
+   margin-top: 30px;
+   padding: 20px;
+   border: 1px solid #ddd;
+   border-radius: 10px;
+   background-color: #fff;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.timer-section p, .bid-section p {
+   margin-bottom: 10px;
+}
+
+/* 헤더 및 텍스트 스타일 */
+.item-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 20px;
+}
+
+.item-name {
+   font-size: 2rem;
+   font-weight: bold;
+   color: #333;
+}
+
+.item-detail {
+   font-size: 1.25rem;
+   color: #555;
+}
+
+/* 타이머 */
+#timer {
+   font-size: 1.5rem;
+   font-weight: bold;
+   color: #dc3545;
+}
+
+/* 하트 아이콘 */
+.heart-icon {
+   font-size: 1.3rem;
+   color: #666;
+   transition: color 0.2s ease;
+}
+
+.heart-icon.red {
+   color: red;
+}
+
+.custom-btn {
+   background-color: transparent;
+   border: none;
+   cursor: pointer;
+   outline: none;
+}
+
+.btn-outline-danger {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.btn-outline-danger span {
+   margin-right: 8px; /* 텍스트와 심볼 사이의 간격 조정 */
+}
+
+.inputList {
+   flex-wrap: nowrap;
+}
+
+.btn-custom {
+   background-color: white;
+   border: 1px solid #ced4da;
+   cursor: pointer;
+   outline: none;
+   width: 100%;
+   box-sizing: border-box;
+   padding: 0.5rem 1rem;
+   font-size: 1rem;
+}
+
+/* 체크박스 스타일 */
+input[type="checkbox"] {
+   transform: scale(1.5);
+}
+
+/* 이미지 컨테이너 */
+.image-container {
+   height: auto;
+   max-width: 700px;
+   width: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+/* 상품 설명 섹션 */
+.lead {
+   white-space: pre-wrap; /* 텍스트가 넘칠 경우 줄 바꿈 */
+   word-wrap: break-word; /* 단어가 길어질 때 자동으로 줄 바꿈 */
+   font-size: 1.25rem;
+   color: #333;
+}
+
+/* 그래프 컨테이너 */
+.canvas-container {
+   margin: 20px auto;
+   max-width: 800px;
+   height: 400px;
+}
+
     </style>
 </th:block>
-
+<body>
 <!-- 사용자 CSS 추가 -->
-<div layout:fragment="content" style="margin-top: 20px; margin-left: 25%; margin-right: 25%; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+<div layout:fragment="content"
+     style="margin-top: 20px; margin-left: 25%; margin-right: 25%; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
     <input type="hidden" id="itemId" th:value="${item.id}">
 
     <div class="d-flex">
@@ -382,25 +678,27 @@ function addCart(){
             <img th:src="${item.itemImgDtoList[0].imgUrl}" class="repImg" th:alt="${item.itemNm}">
         </div>
         <div class="wd50">
-            <span th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="badge bg-primary mgb-15">판매중</span>
-            <span th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="badge bg-danger mgb-15">품절</span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM1}">
-                <p class="badge bg-primary mgb-15">크레스티드 게코 노말</p>
+            <span th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}"
+                  class="badge">판매중</span>
+            <span th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}"
+                  class="badge bg-danger">품절</span>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM1}" class="badge">
+                  크레스티드 게코 노말
             </span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM2}">
-                <p class="badge bg-primary mgb-15">모프 크레스티드 게코 목록</p>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM2}" class="badge">
+                모프 크레스티드 게코
             </span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM3}">
-                <p class="badge bg-primary mgb-15">레오파드 게코 목록</p>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM3}" class="badge">
+                레오파드 게코
             </span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM4}">
-                <p class="badge bg-primary mgb-15">비어디 드래곤 목록</p>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM4}" class="badge">
+                비어디 드래곤
             </span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM5}">
-                <p class="badge bg-primary mgb-15">기타 게코 & 도마뱀 목록</p>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM5}" class="badge">
+                기타 게코 & 도마뱀
             </span>
-            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM6}">
-                <p class="badge bg-primary mgb-15">모니터 & 테구 목록</p>
+            <span th:if="${item.itemValue == T(com.example.Spring_shop.constant.ItemValue).ITEM6}" class="badge">
+                모니터 & 테구
             </span>
             <div class="h4" th:text="${item.itemNm}"></div>
 
@@ -432,38 +730,58 @@ function addCart(){
                     </div>
                     <div class="input-group">
                         <span class="input-group-text">입찰가</span>
-                        <input type="number" name="bidPrice" id="bidPrice" step="1000" class="form-control custom-input1"
+                        <input type="number" name="bidPrice" id="bidPrice" step="1000"
+                               class="form-control custom-input1"
                                th:value="${item.lowestBidPrice != null ? item.lowestBidPrice : item.lowestBidPrice}">
                     </div>
                 </div>
 
                 <hr class="my-4">
 
-                <div th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">
-                    <button type="button" class="btn btn-light border border-primary btn-lg" id="bidButton" onclick="bid()">입찰하기</button>
+                <div th:if="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}"
+                     class="text-right">
+                    <button type="button" class="btn btn-light border border-primary btn-lg" id="bidButton"
+                            onclick="bid()">입찰하기
+                    </button>
                     <button type="button" class="btn btn-light border border-primary btn-lg" id="addCart">
-                        <img th:src="@{/img/heart.png}" alt="Add to Cart" style="width: 30px; height: 30px; border: none;"/>
+                        <img th:src="@{/img/heart.png}" alt="Add to Cart"
+                             style="width: 30px; height: 30px; border: none;"/>
                     </button>
                 </div>
-                <div th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}" class="text-right">
+                <div th:unless="${item.itemSellStatus == T(com.example.Spring_shop.constant.ItemSellStatus).SELL}"
+                     class="text-right">
                     <button type="button" class="btn btn-danger btn-lg">품절</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="mgt-30">
+
+            <div class="tab-buttons">
+                <button id="scrollToGraph">실시간 그래프</button>
+                <button id="scrollToPhotos">사진</button>
+                <button id="scrollToDescription">상세 설명</button>
+            </div>
+
+    <div id="graphSection" class="canvas-container">
+        <canvas id="myChart"></canvas>
+    </div>
+    <div id="photosSection" class="mgt-30">
+        <div class="container text-center">
+            <h4>상품 사진</h4>
+            <hr class="my-4">
+            <div th:each="itemImg : ${item.itemImgDtoList}" class=" repImgDiv2 text-center ">
+                <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15 ">
+            </div>
+        </div>
+    </div>
+    <div id="descriptionSection" class="mgt-30">
         <div class="container">
-            <h4 class="border border-dark rounded-pill display-5" style="text-align:center;">상품 상세 설명</h4>
+            <h4>상품 상세 설명</h4>
             <hr class="my-4">
             <p class="lead" th:text="${item.itemDetail}"></p>
         </div>
     </div>
-    <div class="canvas-container">
-        <canvas id="myChart"></canvas>
-    </div>
-    <div th:each="itemImg : ${item.itemImgDtoList}" class=" repImgDiv2 text-center ">
-        <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15 " >
-    </div>
 </div>
+</body>
 </html>

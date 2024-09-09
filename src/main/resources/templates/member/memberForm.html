@@ -389,7 +389,7 @@
             <label th:for="tel">전화번호</label>
             <input type="text" th:field="*{tel}" th:id ="tel"  class="form-control" placeholder="(-)제외한 전화번호를 입력해주세요.">
             <p th:if="${#fields.hasErrors('tel')}" th:errors="*{tel}" class="fieldError">Incorrect data</p>
-            <button type="button" th:id="sendSmsButton" onclick="sendSms()" class="btn btn-primary">인증번호 보내기</button>
+            <button type="button" th:id="sendSmsButton" onclick="sendSms()" class="btn btn-primary">인증번호 요청</button>
         </div>
         <div class="form-group">
             <input type="text"  th:id="checkCode" class="form-control" placeholder="인증번호를 입력하세요">
