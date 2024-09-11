@@ -13,6 +13,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
+
 </head>
 
 
@@ -132,7 +133,7 @@ let charts = [];
                 var bidPrice = parseInt(bidPriceStr);
                 updateCartItemCount(cartItemId, bidPrice);
             } else {
-                alert("올바른 숫자를 입력하세요.");
+                openModal("올바른 숫자를 입력하세요.");
             }
         }
 
@@ -163,31 +164,53 @@ let charts = [];
                 },
                 error : function(jqXHR, status , error){
                     if(jqXHR.status == '401'){
-                        alert('로그인 후 이용해주세요.');
-                        location.href='/members/login';
+                        openConfirmModal('로그인 후 이용해주세요.', function() {
+                    location.href='/members/login';
+                });
                     }else{
-                        alert(jqXHR.responseText);
+                        openModal(jqXHR.responseText);
                     }
                 }
             });
         }
+        function closeModal() {
+    $('#alertModal').modal('hide');
+}
+
+// 확인 모달 닫기 함수
+function closeConfirmModal() {
+    $('#confirmModal').modal('hide');
+}
+function openConfirmModal(message, onConfirm) {
+    // 메시지 설정
+    $('#confirmMessage').text(message);
+
+    // 확인 버튼에 이벤트 리스너 설정 (기존 리스너 제거 후 추가)
+    $('#confirmYesButton').off('click').on('click', function() {
+        onConfirm(); // 확인 버튼 클릭 시 실행할 콜백 함수
+        closeConfirmModal(); // 모달 닫기
+    });
+
+    // 모달 열기
+    $('#confirmModal').modal('show');
+}
 
           function deleteCartItem(obj){
-                var confirmation = confirm('입찰을 포기하시겠습니까?');
-                    if (!confirmation) {
-                    return;
-                   }
            var cartItemId = obj.dataset.id;
            var currentBidPrice = parseInt($("#currentBidPrice_" + cartItemId).text().replace('원', '').trim());
             var myBidPrice = parseInt($("#myBidPrice_" + cartItemId).text().replace('원', '').trim());
+                 if (currentBidPrice === myBidPrice) {
+            openModal('최고 입찰자입니다. 입찰 포기를 할 수 없습니다.');
+            return;
+    }
 
-              console.log(currentBidPrice)
-              console.log(myBidPrice)
-              if (currentBidPrice === myBidPrice) {
-                 alert('최고 입찰자입니다. 입찰 포기를 할 수 없습니다.');
-                 return;
-                  }
-            var cartItemId = obj.dataset.id;
+
+           // Open confirm modal and pass the delete operation as the onConfirm callback
+    openConfirmModal('입찰을 포기하시겠습니까?', function () {
+        executeDelete(cartItemId); // Call the function to delete the item
+    });
+}
+            function executeDelete(cartItemId) {
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
             var url = "/cartItem/" + cartItemId;
@@ -205,14 +228,41 @@ let charts = [];
                 },
                 error : function(jqXHR, status, error){
                     if(jqXHR.status == '401'){
-                        alert('로그인 후 이용해주세요.');
-                        location.href='/members/login';
+
+                        openConfirmModal('로그인 후 이용해주세요.', function() {
+                    location.href='/members/login';
+                });
                     }
                     else{
-                        alert(jqXHR.responseText);
+                        openModal(jqXHR.responseText);
                     }
                 }
             });
+        }
+        function openModal(message) {
+            console.log(message);
+         var modalMessageElement = document.getElementById('modalMessage'); // 고정된 id로 찾기
+            var modalBodyElement = document.querySelector('.modal-body');
+
+            if (modalMessageElement) {
+                modalMessageElement.innerText += '\n' + message;
+                 modalMessageElement.innerText = message;// 메시지 이어붙이기
+            } else if (modalBodyElement) {
+                console.error('모달 메시지 요소를 찾을 수 없습니다. 기본 메시지로 대체합니다.');
+                modalMessageElement = document.createElement('p');
+                modalMessageElement.innerText = message;
+                modalBodyElement.appendChild(modalMessageElement); // modal-body에 새로운 메시지 추가
+            } else {
+                console.error('모달 본체(.modal-body)를 찾을 수 없습니다.');
+                return; // modal-body도 없으면 모달을 띄우지 않음
+            }
+
+            $('#alertModal').modal('show'); // Bootstrap 모달 열기
+        }
+
+        // 모달 닫기 함수
+        window.closeModal = function() {
+            $('#alertModal').modal('hide');
         }
 
         function orders(){
@@ -251,11 +301,11 @@ let charts = [];
             });
 
             if (isPriceMismatch) {
-                alert("최고 입찰가와 나의 입찰가의 금액이 같지 않습니다.");
+                openModal("최고 입찰자가 아닙니다.");
                 return;
             }
             if(isTimeMismatch){
-                alert("마감이 되지않은 상품입니다.");
+                openModal("마감이 되지않은 상품입니다.");
                 return;
             }
             paramData['cartOrderDtoList'] = dataList;
@@ -272,16 +322,19 @@ let charts = [];
                     xhr.setRequestHeader(header, token);
                 },
                 success : function(result, status){
-                    alert("결제를 진행.");
-                    location.href='/payment/' + result;
+
+                    openConfirmModal('결제를 진행.', function() {
+                    location.href='/payment/'+result;
+                });
                 },
                 error : function(jqXHR, status, error){
                     if(jqXHR.status == '401'){
-                        alert('로그인 후 이용해주세요.');
-                        location.href='/members/login';
+                       openConfirmModal('로그인 후 이용해주세요.', function() {
+                    location.href='/members/login';
+                });
                     }
                     else{
-                        alert(jqXHR.responseText);
+                        openModal(jqXHR.responseText);
                     }
                 }
             });
@@ -306,11 +359,11 @@ let charts = [];
              console.log("lowestBidPrice:", lowestBidPrice, "Type:", typeof lowestBidPrice);
              console.log(cartItemId);
              if (isNaN(newBidPrice)) {
-           alert("새로운 입찰가가 유효하지 않습니다.");
+           openModal("새로운 입찰가가 유효하지 않습니다.");
            return;
               }
             if (newBidPrice >= lowestBidPrice) {
-                alert("입찰가는 최고 현재 입찰가보다 작거나 같을수 없습니다.");
+                openModal("최고 입찰가격보다 낮습니다.");
                 return;
             }
 
@@ -334,16 +387,19 @@ let charts = [];
         dataType: "json",
         cache: false,
         success: function(result, status) {
-            alert("입찰이 완료되었습니다.");
-            location.reload();
 
+
+            openConfirmModal('입찰이 완료되었습니다.', function() {
+                    location.reload();
+                });
         },
         error: function(jqXHR, status, error) {
             if (jqXHR.status == '401') {
-                alert('로그인 후 이용해주세요.');
-                location.href = '/members/login';
+             openConfirmModal('로그인 후 이용해주세요.', function() {
+                    location.href='/members/login';
+                });
             } else {
-                alert(jqXHR.responseText);
+                openModal(jqXHR.responseText);
             }
         }
     });
@@ -606,6 +662,71 @@ th, td {
         top: 0; /* 상단 정렬 */
     }
 }
+          @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap') !important;
+
+  .modal-content {
+    background-color: #f0f0f5 !important; /* 밝은 회색, 더 부드럽고 깔끔한 배경 */
+    border: none !important; /* 경계선 제거 */
+    border-radius: 20px !important; /* 모서리를 둥글게 */
+    text-align: center !important;
+}
+
+.modal-header {
+    border-bottom: none !important; /* 모달 헤더 경계선 제거 */
+}
+
+.modal-footer {
+    border-top: none !important; /* 모달 아랫부분 경계선 제거 */
+    display: flex !important; /* 버튼을 가운데로 정렬 */
+    justify-content: center !important; /* 가운데로 정렬 */
+}
+
+.modal-title {
+    font-family: 'Nanum Gothic', sans-serif !important;
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    color: #5f27cd !important; /* 보라색 글씨 */
+}
+
+.modal-body {
+    padding: 30px !important;
+}
+
+.modal-body h3 {
+    font-family: 'Nanum Pen Script', cursive !important; /* Apply Korean font for th:text */
+    font-size: 5.0rem !important; /* 글자 크기 크게 */
+    color: #5f27cd !important; /* 보라색 글씨 */
+}
+
+/* 알림 아이콘 스타일 */
+.alert-icon {
+    width: 70px !important;
+    height: 70px !important;
+    margin-bottom: 15px !important;
+    color: #5f27cd !important; /* 보라색 아이콘 */
+}
+
+/* 확인 버튼 스타일 */
+.confirm-button {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+.confirm-button img {
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.confirm-button-text {
+    font-size: 1.5rem !important;
+    color: #4dabf7 !important; /* 하늘색 텍스트 */
+    margin-left: 10px !important; /* 아이콘과 텍스트 사이 간격 */
+}
     </style>
 </th:block>
 <div layout:fragment="content" class="content-mg">
@@ -691,5 +812,45 @@ th, td {
         </div>
     </div>
 </div>
+    <div id="alertModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!-- 알림 아이콘 -->
+                    <img src="/img/알림.png" alt="Alert Icon" class="alert-icon">
+
+                    <!-- 에러 메시지 -->
+                    <br>
+                    <br>
+                    <h3 id="modalMessage">경고 메시지: </h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="confirm-button" onclick="closeModal()">
+                        <img src="/img/확인.png" alt="Confirm Button">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!-- 확인 아이콘 -->
+                    <img src="/img/알림.png" alt="Confirm Icon" class="alert-icon">
+                    <br><br>
+                    <h3 id="confirmMessage">확인 메시지: </h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="confirm-button" id="confirmYesButton">
+                        <img src="/img/확인.png" alt="Yes Button">
+                    </button>
+                    <button type="button" class="confirm-button" onclick="closeConfirmModal()">
+                        <img src="/img/취소.png" alt="Cancel Button">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </html>

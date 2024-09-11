@@ -215,8 +215,12 @@ public class CustomerCenterController {
         return "/customerCenter/customerMain";
     }
     @GetMapping(value = "/customerCenter/{notice}")
-    public String customerCenter(@PathVariable("notice") Notice notice, Optional<Integer> page, Model model,Authentication authentication) {
+    public String customerCenter(@PathVariable("notice") Notice notice, Optional<Integer> page, Model model,Principal principal) {
 
+        String email = getEmailFromPrincipalOrSession(principal);
+
+        Member member = memberRepository.findByEmail(email);
+        Role role = member.getRole();
 
         // 데이터베이스에서 모든 게시물을 가져옴
         ItemSearchDto itemSearchDto = new ItemSearchDto();
@@ -231,7 +235,7 @@ public class CustomerCenterController {
         model.addAttribute("dtos", posts);
         model.addAttribute("itemSearchDto", itemSearchDto);
         model.addAttribute("maxPage", 5);
-        model.addAttribute("selectedNotice", notice);
+        model.addAttribute("selectedNotice", role);
         model.addAttribute("NTC", notice);
         //헤더에서 문의사항을 누를시 enum을 이용해서 notice가 유저(문의사항) 문의사항 탭으로 이동
         //헤더에서 공지사항을 누를시 enum을 이용해서 notice가 어드민(공지사항) 탭으로 이동)

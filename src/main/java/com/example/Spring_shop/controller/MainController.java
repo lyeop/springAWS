@@ -77,5 +77,10 @@ public class MainController {
 
         return "item/items";
     }
+    @GetMapping("/error-popup")
+    public String showErrorPopup(@RequestParam("errorMessage") String errorMessage, Model model) {
+        model.addAttribute("errorMessage", errorMessage);
+        return "error-popup";  // 팝업에 표시할 HTML 파일 이름
+    }
 
 }

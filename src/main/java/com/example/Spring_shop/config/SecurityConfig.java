@@ -30,7 +30,8 @@ public class SecurityConfig {
                         ,"/customerCenter/**","/item/items/**","/postcode/**", "/slick/**").permitAll()
                 // 루트 페이지, 회원 관련 페이지, 아이템 페이지, 이미지 페이지에 대한 요청은 모두 허용합니다.
                 .requestMatchers("/", "/members/**", "/item/**", "/images/**", "/item/items/**", "/customerCenter/**",
-                        "/api/**", "/payment/**","/postcode/**", "/slick/**","/listItem","/recentViews","/fetchBidBigData/**").permitAll()
+                        "/api/**", "/payment/**","/postcode/**", "/slick/**","/listItem",
+                        "/recentViews","/fetchBidBigData/**","/error-popup.html").permitAll()
                 // 관리자 페이지에 대한 요청은 ADMIN 역할을 가진 사용자만 허용합니다.
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/thymeleaf/**","/thymeleaf/item/items/**").permitAll()
