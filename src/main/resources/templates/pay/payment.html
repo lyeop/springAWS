@@ -38,7 +38,8 @@
                     if (rsp.success) {
                            var token = $("meta[name='_csrf']").attr("content");
                         var header = $("meta[name='_csrf_header']").attr("content");
-                        alert('call back!!: ' + JSON.stringify(rsp));
+                        //alert('call back!!: ' + JSON.stringify(rsp));
+                        openModal('결제 성공')
                         // 결제 성공 시: 결제 승인 또는 가상계좌 발급에 성공한 경우
                         // jQuery로 HTTP 요청
                         console.log(rsp.imp_uid + '***********' + rsp.merchant_uid);
@@ -55,15 +56,60 @@
                             console.log(response);
                             // 가맹점 서버 결제 API 성공시 로직
                             //alert('Please, Check your payment result page!!' + rsp);
-                            alert('결제 완료!' + rsp);
-                            window.location.href = "/orders";
+                            //alert('결제 완료!' + rsp);
+                            //window.location.href = "/orders";
+                             openConfirmModal('결제 완료!', function() {
+                    window.location.href = "/orders"
                         })
                     } else {
-                        alert("success? "+ rsp.success+ ", 결제에 실패하였습니다. 에러 내용: " + JSON.stringify(rsp));
-                        alert('결제 실패!' + rsp);
-                        window.location.href = "/cart";
+
+                        openConfirmModal('결제 실패!', function() {
+                    window.location.href = "/cart";
+                });
                     }
                 });
+        }
+         function closeConfirmModal() {
+            $('#confirmModal').modal('hide');
+        }
+
+        function openConfirmModal(message, onConfirm) {
+            // 메시지 설정
+            $('#confirmMessage').text(message);
+
+            // 확인 버튼에 이벤트 리스너 설정 (기존 리스너 제거 후 추가)
+            $('#confirmYesButton').off('click').on('click', function() {
+                onConfirm(); // 확인 버튼 클릭 시 실행할 콜백 함수
+                closeConfirmModal(); // 모달 닫기
+            });
+
+            // 모달 열기
+            $('#confirmModal').modal('show');
+        }
+        function openModal(message) {
+            console.log(message);
+         var modalMessageElement = document.getElementById('modalMessage'); // 고정된 id로 찾기
+            var modalBodyElement = document.querySelector('.modal-body');
+
+            if (modalMessageElement) {
+                modalMessageElement.innerText += '\n' + message;
+                 modalMessageElement.innerText = message;// 메시지 이어붙이기
+            } else if (modalBodyElement) {
+                console.error('모달 메시지 요소를 찾을 수 없습니다. 기본 메시지로 대체합니다.');
+                modalMessageElement = document.createElement('p');
+                modalMessageElement.innerText = message;
+                modalBodyElement.appendChild(modalMessageElement); // modal-body에 새로운 메시지 추가
+            } else {
+                console.error('모달 본체(.modal-body)를 찾을 수 없습니다.');
+                return; // modal-body도 없으면 모달을 띄우지 않음
+            }
+
+            $('#alertModal').modal('show'); // Bootstrap 모달 열기
+        }
+
+        // 모달 닫기 함수
+        window.closeModal = function() {
+            $('#alertModal').modal('hide');
         }
     </script>
     <style>
