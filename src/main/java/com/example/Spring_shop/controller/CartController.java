@@ -1,6 +1,7 @@
 package com.example.Spring_shop.controller;
 
 import com.example.Spring_shop.dto.*;
+import com.example.Spring_shop.entity.Item;
 import com.example.Spring_shop.repository.ItemRepository;
 import com.example.Spring_shop.service.CartService;
 import com.example.Spring_shop.service.ItemService;
@@ -29,6 +30,7 @@ public class CartController {
     private final CartService cartService;
     private final HttpSession httpSession;
     private final ItemService itemService;
+    private final ItemRepository itemRepository;
 
     @PostMapping(value = "/cart")
     public @ResponseBody
@@ -43,10 +45,19 @@ public class CartController {
             //append를 이요해서 에러메세지가 없을때까지 붙이기
             return new ResponseEntity<>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
+        Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow();
+        String email = getEmailFromPrincipalOrSession(principal);
+        List<CartDetailDto> cartDetailDtoList = cartService.getCartList(email);
+        for (CartDetailDto cartDetailDto : cartDetailDtoList) {
+
+            if (cartDetailDto.getItemId().equals(item.getId())) {
+                return new ResponseEntity<>("이미 추가되어있습니다.", HttpStatus.BAD_REQUEST);
+            }
+        }
         //유효성 검사를 하고 그게 걸리는게 있으면 싹다 엮어서 에이작스를 통해 보냄
         //StringBuilder 에러메이지 있는 String
 
-        String email = getEmailFromPrincipalOrSession(principal);
+
         //메소드를 통해 소셜로그인인지, 일반로그인지 확인
         Long cartItemId;
         try {

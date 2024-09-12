@@ -99,21 +99,24 @@ public class ChatController {
     @GetMapping("/current-user")
     @ResponseBody
     public String chatRoom(Model model, Principal principal) {
-        String email = getEmailFromPrincipalOrSession(principal);
-        Member member =memberRepository.findByEmail(email);
-        if (member != null) {
-            // 현재 로그인된 사용자의 이름을 model에 추가
+        if (principal != null){
+            String email = getEmailFromPrincipalOrSession(principal);
+            Member member = memberRepository.findByEmail(email);
+            if (member != null) {
+                // 현재 로그인된 사용자의 이름을 model에 추가
 
-            if (member.getRole()==Role.ADMIN){
-                return "운영자";
+                if (member.getRole() == Role.ADMIN) {
+                    return "운영자";
+                }
+                return member.getName();
+            } else {
+                return "anonymous";
             }
-            return member.getName();
-        }else{
-            return "anonymous";
         }
-
+        return "anonymous";
        // chatRoom.html로 렌더링
     }
+
     @GetMapping("/current-role")
     @ResponseBody
     public String chatRole(Model model, Principal principal) {
