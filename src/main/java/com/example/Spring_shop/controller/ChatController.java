@@ -91,7 +91,7 @@ public class ChatController {
                 }
             }
         }else{
-            senderName ="첫 손님";
+            senderName ="anonymous";
         }
 
         return new ChatMessage(message.getContent(), senderName);
@@ -109,7 +109,7 @@ public class ChatController {
             }
             return member.getName();
         }else{
-            return "첫 손님";
+            return "anonymous";
         }
 
        // chatRoom.html로 렌더링
