@@ -31,7 +31,7 @@ public class SecurityConfig {
                 // 루트 페이지, 회원 관련 페이지, 아이템 페이지, 이미지 페이지에 대한 요청은 모두 허용합니다.
                 .requestMatchers("/", "/members/**", "/item/**", "/images/**", "/item/items/**", "/customerCenter/**",
                         "/api/**", "/payment/**","/postcode/**", "/slick/**","/listItem",
-                        "/recentViews","/fetchBidBigData/**","/error-popup.html").permitAll()
+                        "/recentViews","/chat/**","/chat-websocket/**","/fetchBidBigData/**","/view/**").permitAll()
                 // 관리자 페이지에 대한 요청은 ADMIN 역할을 가진 사용자만 허용합니다.
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/thymeleaf/**","/thymeleaf/item/items/**").permitAll()
@@ -55,7 +55,8 @@ public class SecurityConfig {
                         .userService(customOAuth2UserService))
         ) .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-        );
+        ).csrf(csrf->csrf.ignoringRequestMatchers("/chat-websocket/**"));
+        ;
 
         http.exceptionHandling(exception -> exception
                 // 인증되지 않은 사용자가 접근할 때 처리할 엔트리 포인트 설정

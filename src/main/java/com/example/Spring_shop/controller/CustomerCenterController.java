@@ -126,11 +126,15 @@ public class CustomerCenterController {
 
         CustomerCenterPost post = customerCenterService.getCustomerCenterPostById(id);
         List<Comment> comments = commentService.getCommentsByPostId(id);
-        String email = getEmailFromPrincipalOrSession(principal);
-        //현재 로그인 된 멤버
-        Member member = memberRepository.findByEmail(email);
 
-        System.out.println(member.getRole());
+        Member member = null;  // Initialize member as null
+        String email = null;
+
+        // Check if the principal is not null (user is logged in)
+        if (principal != null) {
+            email = getEmailFromPrincipalOrSession(principal);
+            member = memberRepository.findByEmail(email); // Find the member based on the logged-in user's email
+        }
         // 모델에 글 정보를 추가합니다.
         model.addAttribute("post", post);
         model.addAttribute("member", member);
@@ -217,10 +221,12 @@ public class CustomerCenterController {
     @GetMapping(value = "/customerCenter/{notice}")
     public String customerCenter(@PathVariable("notice") Notice notice, Optional<Integer> page, Model model,Principal principal) {
 
-        String email = getEmailFromPrincipalOrSession(principal);
-
-        Member member = memberRepository.findByEmail(email);
-        Role role = member.getRole();
+        Role role = Role.Newbie;
+        if (principal!=null){
+            String email = getEmailFromPrincipalOrSession(principal);
+            Member member = memberRepository.findByEmail(email);
+            role = member.getRole();
+        }
 
         // 데이터베이스에서 모든 게시물을 가져옴
         ItemSearchDto itemSearchDto = new ItemSearchDto();
