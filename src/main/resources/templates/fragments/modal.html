@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap') !important;
+
+.modal-content {
+background-color: #f0f0f5 !important; /* 밝은 회색, 더 부드럽고 깔끔한 배경 */
+border: none !important; /* 경계선 제거 */
+border-radius: 20px !important; /* 모서리를 둥글게 */
+text-align: center !important;
+}
+
+.modal-header {
+border-bottom: none !important; /* 모달 헤더 경계선 제거 */
+}
+
+.modal-footer {
+border-top: none !important; /* 모달 아랫부분 경계선 제거 */
+display: flex !important; /* 버튼을 가운데로 정렬 */
+justify-content: center !important; /* 가운데로 정렬 */
+}
+
+.modal-title {
+font-family: 'Nanum Gothic', sans-serif !important;
+font-size: 1.5rem !importan;
+font-weight: bold !important;
+color: #5f27cd !important; /* 보라색 글씨 */
+}
+
+.modal-body {
+padding: 30px !important;
+}
+
+.modal-body h3 {
+font-family: 'Nanum Pen Script', cursive !important; /* Apply Korean font for th:text */
+font-size: 5.0rem !important; /* 글자 크기 크게 */
+color: #5f27cd !important; /* 보라색 글씨 */
+}
+
+/* 알림 아이콘 스타일 */
+.alert-icon {
+width: 70px !important;
+height: 70px !important;
+margin-bottom: 15px !important;
+color: #5f27cd !important; /* 보라색 아이콘 */
+}
+
+/* 확인 버튼 스타일 */
+.confirm-button {
+background: transparent !important;
+border: none !important;
+outline: none !important;
+cursor: pointer !important;
+display: flex !important;
+justify-content: center !important;
+margin: 0 auto !important;
+}
+
+.confirm-button img {
+width: 50px !important;
+height: 50px !important;
+}
+
+.confirm-button-text {
+font-size: 1.5rem !important;
+color: #4dabf7 !important; /* 하늘색 텍스트 */
+margin-left: 10px !important; /* 아이콘과 텍스트 사이 간격 */
+}
+
+    </style>
+</head>
+<body>
+<div id="alertModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <!-- 알림 아이콘 -->
+                <img src="/img/알림.png" alt="Alert Icon" class="alert-icon">
+
+                <!-- 에러 메시지 -->
+                <br>
+                <br>
+                <h3 id="modalMessage">경고 메시지: </h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="confirm-button" onclick="closeModal()">
+                    <img src="/img/확인.png" alt="Confirm Button">
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <!-- 확인 아이콘 -->
+                <img src="/img/알림.png" alt="Confirm Icon" class="alert-icon">
+                <br><br>
+                <h3 id="confirmMessage">확인 메시지: </h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="confirm-button" id="confirmYesButton">
+                    <img src="/img/확인.png" alt="Yes Button">
+                </button>
+                <button type="button" class="confirm-button" onclick="closeConfirmModal()">
+                    <img src="/img/취소.png" alt="Cancel Button">
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
