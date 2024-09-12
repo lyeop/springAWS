@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet"> <!-- Added Google Font for Korean -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #e0d7f3; /* Adjusted background color to match the purple theme */
+        }
+        .alert-box {
+            padding: 20px;
+            background-color: #f3e5f5; /* Light purple background to match the image theme */
+            color: #721c24;
+            margin: 0 auto;
+            width: 350px;
+            border-radius: 8px;
+            border: 2px solid #b39ddb; /* Border color adjusted to match the purple theme */
+        }
+        .alert-img {
+            width: 100px; /* Adjust size as necessary */
+            margin-bottom: 15px;
+        }
+        .confirm-img {
+            width: 50px; /* Adjust size for confirm button */
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        h3 {
+            font-family: 'Nanum Pen Script', cursive; /* Apply Korean font for th:text */
+            font-size: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="alert-box">
+    <img th:src="@{/img/알림.png}" alt="알림 이미지" class="alert-img"> <!-- Warning image from img folder -->
+    <h3 th:text="${errorMessage}"></h3> <!-- Text will now use Nanum Pen Script font -->
+    <img th:src="@{/img/확인.png}" alt="확인 버튼" class="confirm-img" onclick="window.close();"> <!-- Confirm button image -->
+</div>
+</body>
+</html>
