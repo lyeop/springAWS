@@ -131,10 +131,10 @@ function initMap() {
 
             newItems.forEach(function(item) {
                 var newItemHtml = `
-                    <div class="col">
-                        <div class="card">
+                    <div class="col mb-4">
+                        <div class="card w-300 h-100">
                             <a href="/item/${item.id}" class="text-dark">
-                                <img src="${item.imgUrl}" class="card-img-top" alt="${item.itemNm}" style="max-width: 100%; height: auto;">
+                                <img src="${item.imgUrl}" class="card-img-top" alt="${item.itemNm}">
                                 <div class="card-body">
                                     <h4 class="card-title">${item.itemNm}</h4>
                                     <div id="timer-${item.id}" class="timer" data-end-date="${item.endDate}"></div>
@@ -178,15 +178,15 @@ function initMap() {
                 height: auto;
             }
 
-            .carousel-item img {
-                max-width: 100%;
-                max-height: 500px;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-                object-fit: cover;
-                margin-bottom: 30px;
-            }
+            ..carousel-item img {
+            width: 100%; /* 100%로 설정하여 부모 요소에 맞춤 */
+            max-height: 800px; /* 높이를 유지하여 상자가 너무 커지지 않도록 설정 */
+            height: auto; /* 높이 자동 조절 */
+            display: block;
+            margin: 0 auto;
+            object-fit: contain; /* 이미지 비율을 유지하면서 전체를 보여줌 */
+            margin-bottom: 30px;
+        }
 
  /* Adjust the line height of paragraphs */
  p {
@@ -300,28 +300,33 @@ function initMap() {
      font-weight: bold;
       color: black;
  }
+ .row.row-cols-1.row-cols-md-4 {
+    gap: 1px; /* 상품 간의 간격을 좀 더 넓게 설정 */
+}
 
  /* Product card styling */
- .card {
+.card {
+    max-width: 250px; /* 카드의 최대 너비를 제한 */
+    margin: 0 auto; /* 가운데 정렬 */
     background-color: #3b3b3b;
-     margin-bottom: 30px;
-     border: none;
-     color: #ffffff;
-     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* 음영 추가 */
-     transition: transform 0.2s;
- }
-
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s;
+}
  .card:hover {
      transform: translateY(-5px);
  }
 
- .card img {
-     border-radius: 10px 10px 0 0;
-     object-fit: cover;
- }
+
+.card-img-top {
+    width: 100%; /* 가로 너비를 카드에 맞춤 */
+    height: 200px; /* 고정된 높이 */
+    object-fit: cover; /* 이미지가 찌그러지지 않게 비율을 유지하며 고정 크기에 맞게 설정 */
+}
 
  .card-body {
      padding: 1.5rem;
+    text-align: center;
  }
 
  .card-title {
@@ -359,8 +364,8 @@ function initMap() {
             }
 
             .category-item img {
-                width: 250px;
-                height: 120px;
+                width: 350px;
+                height: 165px;
                 object-fit: cover;
                 border-radius: 15px; /* 부드러운 사각형으로 모서리 둥글게 처리 */
                 border: 3px solid #ffcc00;
@@ -371,7 +376,7 @@ function initMap() {
 
             .category-item p {
                 margin-top: 10px;
-                font-size: 1rem;
+                font-size: 2rem;
                 font-weight: bold;
                 color: #ffcc00;
             }
@@ -399,9 +404,18 @@ function initMap() {
                 background-color: #ffcc00;
                 margin: 10px auto 0; /* 위쪽 여백은 10px, 아래쪽 여백은 없음 */
             }
+            .container {
+    max-width: 1200px; /* 원하는 크기로 조정 가능 */
+    margin: 0 auto;
 
- /* Import Bootstrap */
- @import "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css";
+}
+      .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+
+
         </style>
     </th:block>
 </head>
@@ -413,13 +427,16 @@ function initMap() {
         <div class="carousel-inner" style="margin-top: 20px;">
             <div class="carousel-item active">
 
-                <img th:src="@{/img/아이콘.png}" class="d-block w-100" alt="...">
+                <img th:src="@{/img/메인 배너 1.png}" class="d-block w-100" alt="...">
             </div>
             <div class="carousel-item">
-                <img th:src="@{/img/banner.png}" class="d-block w-100" alt="...">
+                <img th:src="@{/img/메인 배너 2.png}" class="d-block w-100" alt="...">
             </div>
             <div class="carousel-item">
-                <img th:src="@{/img/banner3.png}" class="d-block w-100" alt="...">
+                <img th:src="@{/img/메인 배너 3.png}" class="d-block w-100" alt="...">
+            </div>
+            <div class="carousel-item">
+                <img th:src="@{/img/메인 배너 4.png}" class="d-block w-100" alt="...">
             </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
@@ -472,11 +489,13 @@ function initMap() {
             </a>
         </div>
 </div>
-    <div class="container">
-        <div class="row row-cols-1 row-cols-md-3" id="itemContainer">
+    <br>
+
+    <div class="container-fluid"  >
+        <div class="row row-cols-1 row-cols-md-5 g-2" id="itemContainer">
             <th:block th:each="item, status: ${items.getContent()}">
                 <div class="col mb-4"  type="hidden">
-                    <div class="card h-100">
+                    <div class="card w-300 h-100">
                         <a th:href="'/item/' + ${item.id}" class="text-dark">
                             <img th:src="${item.imgUrl}" class="card-img-top" th:alt="${item.itemNm}">
                             <div class="card-body">
