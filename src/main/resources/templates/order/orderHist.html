@@ -15,86 +15,85 @@
 </head>
 <th:block layout:fragment="script">
     <script th:inline="javascript">
-        function cancelOrder(orderId){
-            var token = $("meta[name = '_csrf']").attr("content");
-            var header = $("meta[name = '_csrf_header']").attr("content");
+        function cancelOrder(orderId) {
+     var token = $("meta[name = '_csrf']").attr("content");
+     var header = $("meta[name = '_csrf_header']").attr("content");
 
-            var url = "/order/" + orderId + "/cancel";
-            var paramData = {
-                orderId : orderId,
-            }
-            var param = JSON.stringify(paramData);
-            $.ajax({
-                url : url,
-                type : "POST",
-                contentType : "application/json",
-                data : param,
-                beforeSend : function(xhr){
-                    /* 데이터 전송하기 전에 헤더에 csrf 값을 설정 */
-                    xhr.setRequestHeader(header, token);
-                },
-                dataType : "json",
-                cache : false,
-                success : function(result, status){
+     var url = "/order/" + orderId + "/cancel";
+     var paramData = {
+         orderId: orderId,
+     };
+     var param = JSON.stringify(paramData);
 
-                      openConfirmModal("주문이 취소 되었습니다.", function() {
-                    location.href = '/orders/' + [[${page}]];
-                },
-                error : function(jqXHR, status, error){
-                    if(jqXHR.status == '401'){
+     $.ajax({
+         url: url,
+         type: "POST",
+         contentType: "application/json",
+         data: param,
+         beforeSend: function(xhr) {
+             /* 데이터 전송하기 전에 헤더에 csrf 값을 설정 */
+             xhr.setRequestHeader(header, token);
+         },
+         dataType: "json",
+         cache: false,
+         success: function(result, status) {
+             openConfirmModal("주문이 취소 되었습니다.", function() {
+                 location.href = '/orders/' + [[${page}]];
+             });
+         },
+         error: function(jqXHR, status, error) {
+             if (jqXHR.status == '401') {
+                 openConfirmModal('로그인 후 이용해주세요.', function() {
+                     location.href = '/members/login';
+                 });
+             } else {
+                 alert(jqXHR.responseText);
+             }
+         }
+     }); // This closes the $.ajax function
+ }
+         function closeConfirmModal() {
+             $('#confirmModal').modal('hide');
+         }
 
-                         openConfirmModal('로그인 후 이용해주세요.', function() {
-                    location.href='/members/login';
-                });
-                    }
-                    else{
-                        alert(jqXHR.responseText);
-                    }
-                }
-            });
-        }
-        function closeConfirmModal() {
-            $('#confirmModal').modal('hide');
-        }
+         function openConfirmModal(message, onConfirm) {
+             // 메시지 설정
+             $('#confirmMessage').text(message);
 
-        function openConfirmModal(message, onConfirm) {
-            // 메시지 설정
-            $('#confirmMessage').text(message);
+             // 확인 버튼에 이벤트 리스너 설정 (기존 리스너 제거 후 추가)
+             $('#confirmYesButton').off('click').on('click', function() {
+                 onConfirm(); // 확인 버튼 클릭 시 실행할 콜백 함수
+                 closeConfirmModal(); // 모달 닫기
+             });
 
-            // 확인 버튼에 이벤트 리스너 설정 (기존 리스너 제거 후 추가)
-            $('#confirmYesButton').off('click').on('click', function() {
-                onConfirm(); // 확인 버튼 클릭 시 실행할 콜백 함수
-                closeConfirmModal(); // 모달 닫기
-            });
+             // 모달 열기
+             $('#confirmModal').modal('show');
+         }
+         function openModal(message) {
+             console.log(message);
+          var modalMessageElement = document.getElementById('modalMessage'); // 고정된 id로 찾기
+             var modalBodyElement = document.querySelector('.modal-body');
 
-            // 모달 열기
-            $('#confirmModal').modal('show');
-        }
-        function openModal(message) {
-            console.log(message);
-         var modalMessageElement = document.getElementById('modalMessage'); // 고정된 id로 찾기
-            var modalBodyElement = document.querySelector('.modal-body');
+             if (modalMessageElement) {
+                 modalMessageElement.innerText += '\n' + message;
+                  modalMessageElement.innerText = message;// 메시지 이어붙이기
+             } else if (modalBodyElement) {
+                 console.error('모달 메시지 요소를 찾을 수 없습니다. 기본 메시지로 대체합니다.');
+                 modalMessageElement = document.createElement('p');
+                 modalMessageElement.innerText = message;
+                 modalBodyElement.appendChild(modalMessageElement); // modal-body에 새로운 메시지 추가
+             } else {
+                 console.error('모달 본체(.modal-body)를 찾을 수 없습니다.');
+                 return; // modal-body도 없으면 모달을 띄우지 않음
+             }
 
-            if (modalMessageElement) {
-                modalMessageElement.innerText += '\n' + message;
-                 modalMessageElement.innerText = message;// 메시지 이어붙이기
-            } else if (modalBodyElement) {
-                console.error('모달 메시지 요소를 찾을 수 없습니다. 기본 메시지로 대체합니다.');
-                modalMessageElement = document.createElement('p');
-                modalMessageElement.innerText = message;
-                modalBodyElement.appendChild(modalMessageElement); // modal-body에 새로운 메시지 추가
-            } else {
-                console.error('모달 본체(.modal-body)를 찾을 수 없습니다.');
-                return; // modal-body도 없으면 모달을 띄우지 않음
-            }
+             $('#alertModal').modal('show'); // Bootstrap 모달 열기
+         }
 
-            $('#alertModal').modal('show'); // Bootstrap 모달 열기
-        }
-
-        // 모달 닫기 함수
-        window.closeModal = function() {
-            $('#alertModal').modal('hide');
-        }
+         // 모달 닫기 함수
+         window.closeModal = function() {
+             $('#alertModal').modal('hide');
+         }
 
     </script>
 </th:block>

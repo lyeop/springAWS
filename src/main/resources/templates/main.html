@@ -364,8 +364,9 @@ function initMap() {
             }
 
             .category-item img {
-                width: 350px;
-                height: 165px;
+
+                max-width: 263x;
+                max-height: 123px;
                 object-fit: cover;
                 border-radius: 15px; /* 부드러운 사각형으로 모서리 둥글게 처리 */
                 border: 3px solid #ffcc00;
@@ -376,7 +377,7 @@ function initMap() {
 
             .category-item p {
                 margin-top: 10px;
-                font-size: 2rem;
+                font-size: 1.5rem;
                 font-weight: bold;
                 color: #ffcc00;
             }
@@ -412,6 +413,11 @@ function initMap() {
       .container-fluid {
     padding-left: 15px;
     padding-right: 15px;
+}
+            @media (max-width: 768px) {
+    .category-item {
+        flex: 1 1 150px; /* Shrinks the items more on smaller screens */
+    }
 }
 
 
@@ -492,7 +498,7 @@ function initMap() {
     <br>
 
     <div class="container-fluid"  >
-        <div class="row row-cols-1 row-cols-md-5 g-2" id="itemContainer">
+        <div class="row row-cols-1 row-cols-md-6" id="itemContainer">
             <th:block th:each="item, status: ${items.getContent()}">
                 <div class="col mb-4"  type="hidden">
                     <div class="card w-300 h-100">
