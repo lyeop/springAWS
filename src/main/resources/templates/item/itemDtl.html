@@ -179,20 +179,32 @@ function openModal(message) {
         var lowestBidPrice =  [[${item.BidPrice}]];
         if (timeRemainingText === '마감') {
                  openModal('경매가 이미 마감되었습니다.');
-
-
             return;
         }
         if (bidPrice < lowestBidPrice) {
-
-
             openModal("최고입찰가보다 작습니다.");
             return;
         }
+              var cartParamData = {
+                   itemId: itemId,
+                   bidPrice: parseInt($("#bidPrice").val()),
+                   BidPrice: parseInt($("#bidPrice").val()),
+                   lowestBidPrice :  lowestBidPrice
+               };
+               var cartParam = JSON.stringify(cartParamData);
+       $.ajax({
+           url: cartUrl,
+           type: "POST",
+           contentType: "application/json",
+           data: cartParam,
+           beforeSend: function(xhr){
+               xhr.setRequestHeader(header, token);
+           },
+           dataType: "json",
+           cache: false,
+           success: function(result, status){
 
-
-
-       var bidParamData = {
+                var bidParamData = {
            itemId: parseInt(itemId),
            bidPrice: bidPrice,
            lowestBidPrice : lowestBidPrice
@@ -200,41 +212,20 @@ function openModal(message) {
 
        var bidParam = JSON.stringify(bidParamData);
 
-       $.ajax({
-           url: bidUrl,
-           type: "PATCH",
-           contentType: "application/json",
-           data: bidParam,
-           beforeSend: function(xhr){
-               xhr.setRequestHeader(header, token);
-           },
-           dataType: "json",
-           cache: false,
-           success: function(result, status){
-               openModal("입찰이 완료되었습니다.");
-               $("#currentBidPrice").text(result.newBidPrice);
-               $("#bidPrice").val(parseInt(result.newBidPrice));
-
-               var cartParamData = {
-                   itemId: itemId,
-                   bidPrice: parseInt($("#bidPrice").val()),
-                   BidPrice: parseInt($("#bidPrice").val()),
-                   lowestBidPrice :  lowestBidPrice
-               };
-
-               var cartParam = JSON.stringify(cartParamData);
-
                $.ajax({
-                   url: cartUrl,
-                   type: "POST",
+                   url: bidUrl,
+                   type: "PATCH",
                    contentType: "application/json",
-                   data: cartParam,
+                   data: bidParam,
                    beforeSend: function(xhr){
                        xhr.setRequestHeader(header, token);
                    },
                    dataType: "json",
                    cache: false,
                    success: function(result, status){
+                     openModal("입찰이 완료되었습니다.");
+               $("#currentBidPrice").text(result.newBidPrice);
+               $("#bidPrice").val(parseInt(result.newBidPrice));
 
                    },
                    error: function(jqXHR, status, error){
