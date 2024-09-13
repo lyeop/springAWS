@@ -1,11 +1,9 @@
 package com.example.Spring_shop.controller;
 
 import com.example.Spring_shop.constant.ItemValue;
-import com.example.Spring_shop.dto.ItemFormDto;
-import com.example.Spring_shop.dto.ItemSearchDto;
-import com.example.Spring_shop.dto.MainItemDto;
-import com.example.Spring_shop.dto.RecentProduct;
+import com.example.Spring_shop.dto.*;
 import com.example.Spring_shop.entity.Item;
+import com.example.Spring_shop.entity.ItemImg;
 import com.example.Spring_shop.repository.ItemRepository;
 import com.example.Spring_shop.service.BidService;
 import com.example.Spring_shop.service.ItemImgService;
@@ -152,6 +150,7 @@ public class ItemController {
         model.addAttribute("item", itemFormDto);
         // 아이템 이미지 URL을 가져와서 쿠키에 최근 본 상품으로 저장합니다
         String recentImage = itemImgService.selectProductImageUrlByProductId(itemId);
+
         recentProductService.saveRecentProductToCookie(itemId, response, request, recentImage, itemFormDto.getItemNm());
 
         List<RecentProduct> recentProducts = recentProductService.getRecentProductsFromCookie(request);

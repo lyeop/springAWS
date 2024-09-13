@@ -141,7 +141,7 @@ public class CustomerCenterController {
         model.addAttribute("comments", comments);
         //세션을 통해 로그인한사람 확인하고 조회할때 로그인한사람, 게시글정보를 봅니다.
 
-        return "/customerCenter/customerPostView"; // 상세 정보를 보여줄 뷰 페이지로 이동합니다.
+        return "customerCenter/customerPostView"; // 상세 정보를 보여줄 뷰 페이지로 이동합니다.
     }
 
     @PostMapping("/customerCenter/delete/{id}")

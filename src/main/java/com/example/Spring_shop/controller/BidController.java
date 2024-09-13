@@ -91,9 +91,6 @@ public class BidController {
     //장바구니 그래프 > 다수 > 최고입찰가, 최근입찰가 , 상품이름 itemId 조회하고 List<BidData> 리스트로 만들어서
     //ajax 값 조회해서 각자상품 업데이트
 
-    private boolean isUserLoggedIn() {
-        // 로그인 상태를 확인하는 로직
-        return true; // 예시로 true 반환, 실제로는 세션이나 인증 토큰을 확인
-    }
+
 
 }

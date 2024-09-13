@@ -35,7 +35,7 @@
        function valid2() {
            var isAdmin = [[${selectedNotice}]];
            console.log(isAdmin);
-           if (isAdmin != 'USER') {
+           if (isAdmin == 'Newbie') {
                openConfirmModal('로그인 후 이용해주세요.', function() {
                     location.href='/members/login';
                 });
@@ -47,7 +47,7 @@
                 return true;
             } else {
                openConfirmModal('운영자 입니다. 공지사항 작성으로 이동하시겠습니까?', function() {
-                    document.getElementById("writeBtn").submit();
+                    document.getElementById("writeBtn2").submit();
                 });
                 return true;
             }

@@ -2,6 +2,10 @@ package com.example.Spring_shop.service;
 
 import com.example.Spring_shop.dto.RecentProduct;
 import com.example.Spring_shop.entity.Item;
+import com.example.Spring_shop.entity.ItemImg;
+import com.example.Spring_shop.repository.ItemImgRepository;
+import com.example.Spring_shop.repository.ItemRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
@@ -13,15 +17,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
+
 import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor // final, @NonNull 변수에 붙으면 자동 주입(Autowired)을 해줍니다.
 public class RecentProductService {
-    private  final ItemService itemService;
+
 
     private static final String RECENT_PRODUCTS_COOKIE_NAME = "recentProducts";
     private static final String CHARSET = "UTF-8";
@@ -39,19 +42,16 @@ public class RecentProductService {
 //                RecentProduct remove = recentProducts.remove(i);
 //            }
 //        }
+
         // 새 상품을 추가
         RecentProduct newProduct = new RecentProduct();
         newProduct.setProductId(productId);
         newProduct.setImageUrl(imageUrl);
         newProduct.setItemNm(itemNm);
 
-        for(RecentProduct r : recentProducts){
-            System.out.println(r.getItemNm()+"===========");
-        }
 
         // 이미 최근 본 리스트에 같은 상품이 있으면 제거
         recentProducts.removeIf(product -> product.getProductId().equals(productId));
-
         // 최신 아이템을 리스트의 앞쪽에 추가
 
 
@@ -69,7 +69,7 @@ public class RecentProductService {
         try {
             String encodedValue = URLEncoder.encode(cookieValue, CHARSET);
             Cookie cookie = new Cookie(RECENT_PRODUCTS_COOKIE_NAME, encodedValue);
-            cookie.setMaxAge(60 * 60); // 쿠키를 7일 동안 유지
+            cookie.setMaxAge(60 * 60); // 쿠키를 1일 동안 유지
             cookie.setPath("/");
             response.addCookie(cookie);
 
@@ -86,7 +86,6 @@ public class RecentProductService {
                 if (RECENT_PRODUCTS_COOKIE_NAME.equals(cookie.getName())) {
                     try {
                         String decodedValue = URLDecoder.decode(cookie.getValue(), CHARSET);
-
                         return convertStringToRecentProducts(decodedValue);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();

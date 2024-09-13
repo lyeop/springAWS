@@ -1,5 +1,6 @@
 package com.example.Spring_shop.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -37,7 +38,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customerCenterPost_id")
-    @JsonIgnore
+    @JsonBackReference
     private CustomerCenterPost post;
 
     @ManyToOne(fetch = FetchType.LAZY)

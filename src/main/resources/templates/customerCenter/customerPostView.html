@@ -14,110 +14,160 @@
 <th:block layout:fragment="script">
     <script th:inline="javascript">
         $(document).ready(function() {
-        var csrfToken = $("meta[name='_csrf']").attr("content");
-        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+          var csrfToken = $("meta[name='_csrf']").attr("content");
+          var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+          var isSubmitting = false; // 중복 제출 방지 플래그
 
-        // 댓글 작성 폼 제출
-        $('#commentForm').submit(function(event) {
-            event.preventDefault(); // 기본 폼 제출 방지
+          // 댓글 작성 폼 제출 이벤트
+          $('#commentForm').off('submit').on('submit', function(event) {
+              event.preventDefault(); // 기본 폼 제출 방지
 
-            var postId = [[${post.id}]];
-            var memberId = [[${member.id}]];
-            var commentText = $('#commentText').val();
+              if (isSubmitting) {
+                  return; // 이미 제출 중이면 아무 동작하지 않음
+              }
+              isSubmitting = true; // 제출 중으로 상태 변경
 
-            var addCommentRequestData = {
-                postId: postId,
-                memberId: memberId,
-                comment: commentText
-            };
+              var postId = [[${post.id}]];
+              var memberId = [[${member.id}]];
+              var commentText = $('#commentText').val();
 
-            var addCommentRequest = JSON.stringify(addCommentRequestData);
+              console.log(postId);
+              console.log(memberId);
+              console.log(commentText);
 
-            $.ajax({
-                url: '/comments/add', // 서버로 댓글 추가 요청
-                type: 'POST',
-                contentType: 'application/json',
-                data: addCommentRequest,
-                headers: {
-                    [csrfHeader]: csrfToken // CSRF 토큰을 헤더에 추가
-                },
-                success: function(response) {
-                    // 서버에서 응답으로 받은 데이터를 사용하여 새로운 댓글 추가
-                    var newCommentHtml = `
-                        <div class="comment" id="comment-${response.id}">
-                            <p class="author">
-                                ${response.isAdmin ? '운영자' : response.maskedName}
-                            </p>
-                            <p class="text">${response.comment}</p>
-                            <button class="delete-btn delete-comment" data-comment-id="${response.id}">댓글 삭제</button>
-                        </div>
-                    `;
-                    // 댓글 리스트에 추가
-                    $('#commentList').append(newCommentHtml);
-                    $('#commentText').val(''); // 입력 필드 비우기
+              var addCommentRequestData = {
+                  postId: postId,
+                  memberId: memberId,
+                  comment: commentText
+              };
 
-                    // 댓글 삭제 이벤트 핸들러 다시 연결
-                    attachDeleteHandler();
-                },
-                error: function(error) {
-                    console.log('Error:', error);
-                    openModal('댓글 작성에 실패했습니다.');
-                }
-            });
-        });
+              var addCommentRequest = JSON.stringify(addCommentRequestData);
 
-        // 댓글 삭제 이벤트 핸들러 연결 함수
-        function attachDeleteHandler() {
-            $('.delete-comment').off('click').on('click', function(event) {
-                event.preventDefault();
-                var commentId = $(this).data('comment-id');
+              $.ajax({
+                  url: '/comments/add', // 서버로 댓글 추가 요청
+                  type: 'POST',
+                  contentType: 'application/json',
+                  data: addCommentRequest,
+                  headers: {
+                      [csrfHeader]: csrfToken // CSRF 토큰을 헤더에 추가
+                  },
+                  success: function(response) {
+                      // 서버에서 응답으로 받은 데이터를 사용하여 새로운 댓글 추가
+                      console.log("응답 데이터:", response);
+                        var authorHtml = response.member.role === 'ADMIN'
+            ? `<span class="admin-author">운영자</span>`
+            : `<span>${response.maskedName}</span>`;
+                      var newCommentHtml = `
+                          <div class="comment" id="comment-${response.id}">
+                              <p class="author"  >
+                                  ${authorHtml}
+                              </p>
+                              <p class="text">${response.comment}</p>
+                              <button class="delete-btn delete-comment" data-comment-id="${response.id}">댓글 삭제</button>
+                          </div>
+                      `;
+                      // 댓글 리스트에 추가
+                      $('#commentList').append(newCommentHtml);
+                      $('#commentText').val(''); // 입력 필드 비우기
 
-                openConfirmModal('정말로 이 댓글을 삭제하시겠습니까?', function() {
-                    $.ajax({
-                        url: '/comments/delete/' + commentId,
-                        type: 'POST',
-                        headers: {
-                            [csrfHeader]: csrfToken
-                        },
-                        success: function(response) {
-                            $('#comment-' + commentId).remove(); // 댓글 삭제
-                        },
-                        error: function(error) {
-                            console.error('댓글 삭제 중 오류 발생:', error);
-                            openModal("댓글 삭제 중 오류가 발생했습니다.");
-                        }
-                    });
-                });
-            });
-        }
+                      // 댓글 삭제 이벤트 핸들러 다시 연결
+                      attachDeleteHandler();
+                      isSubmitting = false; // 성공 시 다시 제출 가능 상태로 변경
+                  },
+                  error: function(error) {
+                      console.log('Error:', error);
+                      isSubmitting = false; // 실패 시 다시 제출 가능 상태로 변경
+                       openModal("댓글 작성 오류.");
+                  }
+              });
+          });
 
-        // 처음 로드 시 댓글 삭제 이벤트 핸들러 연결
-        attachDeleteHandler();
-    });
+          // 댓글 삭제 이벤트 핸들러 연결 함수
+          function attachDeleteHandler() {
+              $('.delete-comment').off('click').on('click', function(event) {
+                  event.preventDefault();
+                  var commentId = $(this).data('comment-id');
 
-<!--            // 댓글 삭제-->
-<!--            $(document).on('click', '.delete-comment', function(event) {-->
-<!--                event.preventDefault();-->
-<!--                var commentId = $(this).data('comment-id');-->
+                  openConfirmModal('정말로 이 댓글을 삭제하시겠습니까?', function() {
+                      $.ajax({
+                          url: '/comments/delete/' + commentId,
+                          type: 'POST',
+                          headers: {
+                              [csrfHeader]: csrfToken
+                          },
+                          success: function(response) {
+                              $('#comment-' + commentId).remove(); // 댓글 삭제
+                          },
+                          error: function(error) {
+                              console.error('댓글 삭제 중 오류 발생:', error);
+                              openModal("댓글 삭제 중 오류가 발생했습니다.");
+                          }
+                      });
+                  });
+              });
+          }
 
-<!--                openConfirmModal('정말로 이 댓글을 삭제하시겠습니까?', function() {-->
-<!--                    $.ajax({-->
-<!--                        url: '/comments/delete/' + commentId,-->
-<!--                        type: 'POST',-->
-<!--                        headers: {-->
-<!--                            [csrfHeader]: csrfToken-->
-<!--                        },-->
-<!--                        success: function(response) {-->
-<!--                            $('#comment-' + commentId).remove(); // 댓글 삭제-->
-<!--                        },-->
-<!--                        error: function(error) {-->
-<!--                            console.error('댓글 삭제 중 오류 발생:', error);-->
-<!--                            openModal("댓글 삭제 중 오류가 발생했습니다.");-->
-<!--                        }-->
-<!--                    });-->
-<!--                });-->
-<!--            });-->
-<!--        });-->
+          // 처음 로드 시 댓글 삭제 이벤트 핸들러 연결
+          attachDeleteHandler();
+      });
+
+      function openConfirmModal(message, onConfirm) {
+          $('#confirmMessage').text(message);
+          $('#confirmYesButton').off('click').on('click', function() {
+              onConfirm();
+              $('#confirmModal').modal('hide');
+          });
+          $('#confirmModal').modal('show');
+      }
+
+      function openModal(message) {
+          console.log(message);
+          var modalMessageElement = document.getElementById('modalMessage');
+          var modalBodyElement = document.querySelector('.modal-body');
+
+          if (modalMessageElement) {
+              modalMessageElement.innerText = message;
+          } else if (modalBodyElement) {
+              modalMessageElement = document.createElement('p');
+              modalMessageElement.innerText = message;
+              modalBodyElement.appendChild(modalMessageElement);
+          } else {
+              console.error('모달 본체(.modal-body)를 찾을 수 없습니다.');
+              return;
+          }
+
+          $('#alertModal').modal('show');
+      }
+
+      // 모달 닫기 함수
+      window.closeModal = function() {
+          $('#alertModal').modal('hide');
+      }
+
+      function closeConfirmModal() {
+          $('#confirmModal').modal('hide');
+      }
+
+      function confirmDelete() {
+          openConfirmModal('정말로 삭제하시겠습니까?', function() {
+              document.getElementById("deleteForm").submit(); // 삭제 실행
+          });
+      }
+
+      // 수정 확인 함수
+      function confirmUpdate() {
+          var isAdmin = [[${member.role == T(com.example.Spring_shop.constant.Role).ADMIN}]];
+          var isAuthor = [[${post.member.id == member.id}]];
+
+          if (!isAdmin && !isAuthor) {
+              openModal('수정 권한이 없습니다.');
+          } else {
+              openConfirmModal('정말로 수정하시겠습니까?', function() {
+                  document.getElementById("updateForm").submit(); // 수정 실행
+              });
+          }
+      }
+
           function openConfirmModal(message, onConfirm) {
             $('#confirmMessage').text(message);
             $('#confirmYesButton').off('click').on('click', function() {
@@ -488,7 +538,7 @@
                 <p class="text" th:text="${comment.comment}"></p>
 
                 <!-- 댓글 삭제 버튼: 댓글 작성자만 삭제 가능 -->
-                <button th:if="${comment.member.id == member.id}" class="delete-btn delete-comment" th:data-comment-id="${comment.id}">댓글 삭제</button>
+                <button th:if="${comment.member.id == member.id or member.role == T(com.example.Spring_shop.constant.Role).ADMIN }" class="delete-btn delete-comment" th:data-comment-id="${comment.id}">댓글 삭제</button>
             </div>
         </div>
 

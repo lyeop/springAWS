@@ -20,6 +20,9 @@ public class CommentController {
     @PostMapping("/add")
     public ResponseEntity<?> addComment(@RequestBody AddCommentRequest request) {
         try {
+            System.out.println(request.getComment()+"내용");
+            System.out.println(request.getMemberId()+"맴버");
+            System.out.println(request.getPostId()+"게시글");
             Comment comment = commentService.addComment(request);
             return ResponseEntity.ok(comment);
         } catch (Exception e) {

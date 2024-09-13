@@ -45,7 +45,7 @@ public class CustomerCenterPost {
 
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @OrderBy("id asc") // 댓글 정렬
-    @JsonManagedReference
+    @JsonManagedReference // 순환 참조 방지
     private List<Comment> comments;
 
     @Builder
