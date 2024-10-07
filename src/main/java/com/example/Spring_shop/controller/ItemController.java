@@ -44,7 +44,7 @@ public class ItemController {
     @GetMapping(value = "/admin/item/new")
     public String itemForm(Model model){
         model.addAttribute("itemFormDto", new ItemFormDto());
-        return "/item/itemForm";
+        return "item/itemForm";
         //관리자가 상품등록할때 새로운 객체를 받아서 글쓰기 양식을 보내줍니다.
     }
 
@@ -55,14 +55,14 @@ public class ItemController {
 
         // 입력 값 검증에서 오류가 발생하면 다시 상품 등록 폼을 보여줍니다.
         if (bindingResult.hasErrors()){
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         //유효성 검사
 
         // 첫 번째 상품 이미지는 필수 입력 값입니다.
         if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){
             model.addAttribute("errorMessage", "첫번째 상품 이미지는 필수 입력 값입니다.");
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         try {
             // 상품 정보를 저장합니다.
@@ -70,7 +70,7 @@ public class ItemController {
         }
         catch (Exception e){
             model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         return "redirect:/";
     }
@@ -85,10 +85,10 @@ public class ItemController {
         catch (EntityNotFoundException e){
             model.addAttribute("errorMessage", "존재하지 않는 상품입니다.");
             model.addAttribute("itemFormDto",new ItemFormDto());
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         //상품 수정
-        return "/item/itemForm";
+        return "item/itemForm";
     }
 
     // 상품 정보를 수정합니다.
@@ -99,12 +99,12 @@ public class ItemController {
 
         // 입력 값 검증에서 오류가 발생하면 다시 상품 수정 폼을 보여줍니다.
         if (bindingResult.hasErrors()){
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         // 첫 번째 상품 이미지는 필수 입력 값입니다.
         if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){
             model.addAttribute("errorMessage", "첫번째 상품 이미지는 필수 입력 값입니다.");
-            return "/item/itemForm";
+            return "item/itemForm";
         }
         try {
             // 상품 정보를 수정합니다.
@@ -139,7 +139,7 @@ public class ItemController {
         //검색도 해야하기떄문에 itemSearchDto 넣어주고
         //게시글갯수는 5개이상 넘어가면 페이지가 생김
 
-        return "/item/itemMng";
+        return "item/itemMng";
     }
 
     // 상품 상세 정보를 조회합니다.
@@ -158,7 +158,7 @@ public class ItemController {
             System.out.println("인덱스가 제대로 바뀌는가"+ recentProducts.get(i).getItemNm());
         }
 
-        return "/item/itemDtl";
+        return "item/itemDtl";
         //아이템 상세정보
     }
     @GetMapping(value = {"/choice/{itemValue}/{page}"})

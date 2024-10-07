@@ -58,7 +58,7 @@ public class CustomerCenterController {
 
         if(principal==null){
             model.addAttribute("errorMessage","로그인 후 이용해주세요");
-            return "/member/memberLoginForm";
+            return "member/memberLoginForm";
         }
 
         String email = getEmailFromPrincipalOrSession(principal);
@@ -99,7 +99,7 @@ public class CustomerCenterController {
 
         } catch (IllegalStateException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            return "/customerCenter/customerForm";
+            return "customerCenter/customerForm";
         }
 
         ItemSearchDto itemSearchDto = new ItemSearchDto();
@@ -163,7 +163,7 @@ public class CustomerCenterController {
         //공지사항만 글을 담아서 보냅니다.
         //공지사항 글만 나오게 됩니다.
 
-        return "/customerCenter/customerMain";
+        return "customerCenter/customerMain";
     }
 
 
@@ -179,7 +179,7 @@ public class CustomerCenterController {
         model.addAttribute("customerCenterPostFormDto", customerCenterPostFormDto);
         model.addAttribute("NTC",NTC);
         //수정하기 위해 게시글 번호 조회하고 양식을 찾아서 보내줍니다.
-        return "/customerCenter/customerUpdateForm";
+        return "customerCenter/customerUpdateForm";
     }
 
 
@@ -190,7 +190,7 @@ public class CustomerCenterController {
 
         if (bindingResult.hasErrors()) {
             System.out.println("오류났어요");
-            return "/customerCenter/customerUpdateForm";//다시 작성화면으로 돌려보냄
+            return "customerCenter/customerUpdateForm";//다시 작성화면으로 돌려보냄
         }
         //유효성 검사
         try {
@@ -200,7 +200,7 @@ public class CustomerCenterController {
         } catch (Exception e){
             model.addAttribute("errorMessage", "상품 수정 중 에러가 발생하였습니다.");
             System.out.println("여기 오류에요");
-            return "/customerCenter/customerUpdateForm";
+            return "customerCenter/customerUpdateForm";
         }
 
         ItemSearchDto itemSearchDto = new ItemSearchDto();
@@ -216,7 +216,7 @@ public class CustomerCenterController {
         //공지사항의 글만 조회해서 보내고
         //공지사항으로 이동합니다.
 
-        return "/customerCenter/customerMain";
+        return "customerCenter/customerMain";
     }
     @GetMapping(value = "/customerCenter/{notice}")
     public String customerCenter(@PathVariable("notice") Notice notice, Optional<Integer> page, Model model,Principal principal) {
@@ -246,7 +246,7 @@ public class CustomerCenterController {
         //헤더에서 문의사항을 누를시 enum을 이용해서 notice가 유저(문의사항) 문의사항 탭으로 이동
         //헤더에서 공지사항을 누를시 enum을 이용해서 notice가 어드민(공지사항) 탭으로 이동)
 
-        return "/customerCenter/customerMain";
+        return "customerCenter/customerMain";
     }
 
     @GetMapping(value = {"/Cpost/{page}/{notice}"})
@@ -269,7 +269,7 @@ public class CustomerCenterController {
         //페이지네비게이션으로 옮길시 받아온 notice(공지사항,문의사항) 값을 가지고
         //받아온 값을 이용해 공지사항 페이지 이동 or 문의사항 페이지 이동
 
-        return "/customerCenter/customerMain";
+        return "customerCenter/customerMain";
     }
 
 

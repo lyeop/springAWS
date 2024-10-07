@@ -56,7 +56,7 @@ public class MemberController {
     @GetMapping(value = "/new")
     public String memberForm(Model model) {
         model.addAttribute("memberFormDto", new MemberFormDto());
-        return "/member/memberForm";
+        return "member/memberForm";
     }
 
     //----------------------------------------마이 페이지----------------------------------------------------
@@ -80,7 +80,7 @@ public class MemberController {
         //모델로 로그인한 게졍 , 업데이트할수있는 객체를 담아서 보내줍니다.
 
 
-        return "/member/memberMyPage";
+        return "member/memberMyPage";
     }
 
 
@@ -89,7 +89,7 @@ public class MemberController {
                                BindingResult bindingResult,Model model, Principal principal){
 
         if (bindingResult.hasErrors()) {
-            return "/member/memberMyPage";//다시 회원가입으로 돌려보닙니다.
+            return "member/memberMyPage";//다시 회원가입으로 돌려보닙니다.
         }
         try {
             //데이터베이스에 업데이트
@@ -111,7 +111,7 @@ public class MemberController {
             model.addAttribute("member",member);
             model.addAttribute("memberUpdateFormDto", memberUpdateFormDto1);
 
-            return "/member/memberMyPage";
+            return "member/memberMyPage";
         }
 
         String email = getEmailFromPrincipalOrSession(principal);
@@ -127,7 +127,7 @@ public class MemberController {
         model.addAttribute("member",member);
         model.addAttribute("memberUpdateFormDto", memberUpdateFormDto1);
 
-        return "/member/memberMyPage";
+        return "member/memberMyPage";
     }
 
     //----------------------------------------------회원가입-------------------------------------------
@@ -137,12 +137,12 @@ public class MemberController {
                              Model model) {
         // @Valid 붙은 객체를 검사해서 결과에 에러가 있으면 실행
         if (bindingResult.hasErrors()) {
-            return "/member/memberForm";//다시 회원가입으로 돌려보닙니다.
+            return "member/memberForm";//다시 회원가입으로 돌려보닙니다.
         }
         if (!confirmCheck) {
             //메일인증 안할시 모델로 에러메세지 보내서 이메일 인증하라고 보냄
             model.addAttribute("errorMessage", "이메일 인증을 하세요.");
-            return "/member/memberForm";
+            return "member/memberForm";
         }
         try {
             //Member 객체 생성
@@ -154,7 +154,7 @@ public class MemberController {
 
         } catch (IllegalStateException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            return "/member/memberForm";
+            return "member/memberForm";
         }
         return "redirect:/";
     }
@@ -170,7 +170,7 @@ public class MemberController {
     @GetMapping(value = "/login/error")
     public String loginError(Model model) {
         model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요");
-        return "/member/memberLoginForm";
+        return "member/memberLoginForm";
     }
 
     //---------------------------회원가입 이메일 인증 ----------------------------------------------------
@@ -206,7 +206,7 @@ public class MemberController {
 
         model.addAttribute("memberEmailDto",memberEmailDto);
 
-        return "/member/memberFindPassword";
+        return "member/memberFindPassword";
 
     }
 
@@ -221,14 +221,14 @@ public class MemberController {
             MemberEmailDto memberEmailDto1=new MemberEmailDto();
             model.addAttribute("memberEmailDto",memberEmailDto1);
 
-            return "/member/memberFindPassword";
+            return "member/memberFindPassword";
         }
         //인증이 안되어있으면 다시 돌려보내기
         if (!confirmFindCheck) {
             model.addAttribute("errorMessage", "이메일 인증을 하세요.");
             MemberEmailDto memberEmailDto1=new MemberEmailDto();
             model.addAttribute("memberEmailDto",memberEmailDto1);
-            return "/member/memberFindPassword";
+            return "member/memberFindPassword";
         }
         Member member = memberRepository.findByEmail(memberEmailDto.getEmail());
         MemberPasswordDto memberPasswordDto = new MemberPasswordDto();
@@ -237,7 +237,7 @@ public class MemberController {
         model.addAttribute("member",member);
         model.addAttribute("memberPasswordDto",memberPasswordDto);
 
-        return "/member/memberFindPassword2";
+        return "member/memberFindPassword2";
     }
 
     @PostMapping(value = "/memberUpdatePassword")
@@ -250,12 +250,12 @@ public class MemberController {
             MemberPasswordDto memberPasswordDto1=new MemberPasswordDto();
             model.addAttribute("memberPasswordDto",memberPasswordDto1);
 
-            return "/member/memberFindPassword2";
+            return "member/memberFindPassword2";
         }
 
         memberService.updatePassword(memberPasswordDto, passwordEncoder);
 
-        return "/member/memberLoginForm";
+        return "member/memberLoginForm";
     }
 
     @PostMapping("/{email}/emailFindConfirm")
@@ -343,7 +343,7 @@ public class MemberController {
 
         model.addAttribute("secessionReasonDto", secessionReasonDto);
 
-        return "/member/memberDelete";
+        return "member/memberDelete";
     }
 
     @PostMapping(value = "/deleteMember2")
@@ -391,6 +391,6 @@ public class MemberController {
         model.addAttribute("selectedNotice", notice);
         model.addAttribute("NTC", notice);
 
-        return "/customerCenter/customerMain";
+        return "customerCenter/customerMain";
     }
 }
